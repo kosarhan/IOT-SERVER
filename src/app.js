@@ -33,6 +33,7 @@ app.get('/', (req, res) => {
 const db = require('./api/configs/db.config');
 
 require('./api/routes/node.route')(app);
+require('./api/routes/temperature.route')(app);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
