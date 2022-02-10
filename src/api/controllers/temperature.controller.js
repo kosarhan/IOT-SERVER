@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const db = require('../configs/db.config');
 
 const Temperature = db.temperature;
@@ -25,10 +26,34 @@ exports.getAll = (req, res) => {
   });
 };
 
-// FETCH All Temperature Values
-exports.getAllByNodeId = (req, res) => {
-  
-  Temperature.findAll().then((temperature) => {
+// FETCH All Temperature Values That Has Node Id
+exports.getAllByNodeId = (req, res, nodeId) => {
+  // const nodeId = req.params.nodeId;
+  Temperature.findAll({ where: { nodeId: nodeId} }).then((temperature) => {
+    // Send All Temperature Values to Client
+    res.json(temperature.sort((c1, c2) => c1.id - c2.id));
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).json({ msg: 'error', details: err });
+  });
+};
+
+// FETCH All Temperature Values That Has Node Id due to start and end dates
+exports.getAllByTimeFilters = (req, res, nodeId, dateFilters) => {
+  // const nodeId = req.params.nodeId;
+  const startDate = new Date(dateFilters.startDate);
+  const endDate = new Date(dateFilters.endDate);
+
+  Temperature.findAll({
+    where: {
+      nodeId,
+      // updatedAt: { [Op.between]: [startDate, endDate] }
+      updatedAt: {
+        [Op.gt]: startDate,
+        [Op.lt]: endDate
+      }
+    }
+  }).then((temperature) => {
     // Send All Temperature Values to Client
     res.json(temperature.sort((c1, c2) => c1.id - c2.id));
   }).catch((err) => {
