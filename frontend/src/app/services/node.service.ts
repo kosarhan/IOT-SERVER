@@ -19,7 +19,7 @@ export class NodeService {
     return this.http.get<Node[]>(this.url);
   }
 
-  getNode(id: any) : Observable<Node> {
+  getNode(id: number) : Observable<Node> {
     // console.log(this.url + '/' + id);
     return this.http.get<Node>(this.url + '/'+ id);
     // return null;

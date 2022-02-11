@@ -1,6 +1,7 @@
-export class Node {
+export class Temperature {
     id: number | undefined;
-    name: string | undefined;
+    value: number | undefined;
+    nodeId: number | undefined;
     createdAt: Date | undefined;
     updatedAt: Date | undefined;
     deletedAt: Date | undefined;
