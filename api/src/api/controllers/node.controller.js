@@ -13,6 +13,17 @@ exports.create = (req, res) => {
   });
 };
 
+// Fetch Node By Id
+exports.getById = (req, res) => {
+  const id = req.params.id;
+  Node.findByPk(id).then((node) => {
+    res.json(node);
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).json({ msg: 'error', details: err});
+  });
+};
+
 // FETCH All Node
 exports.getAll = (req, res) => {
   Node.findAll().then((node) => {

@@ -1,0 +1,13 @@
+<table>
+    <thead>
+        <th>Node Id</th>
+        <th>Node Name</th>
+    </thead>
+    <tbody>
+        <tr *ngFor="let node of nodes">
+            <td>{{ node.id }}</td>
+            <td>{{ node.name}}</td>
+            <a href="/node/{{ node.id }}">Link</a>
+        </tr>
+    </tbody>
+</table>

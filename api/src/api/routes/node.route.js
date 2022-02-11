@@ -4,6 +4,9 @@ module.exports = function (app) {
   // Create a new node
   app.post('/node', node.create);
 
+  // Retrieve node by id
+  app.get('/node/:id', node.getById);
+
   // Retrieve all node
   app.get('/node', node.getAll);
 
