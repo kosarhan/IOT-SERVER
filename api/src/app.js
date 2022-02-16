@@ -34,6 +34,7 @@ const db = require('./api/configs/db.config');
 
 require('./api/routes/node.route')(app);
 require('./api/routes/temperature.route')(app);
+require('./api/routes/humidity.route')(app);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);

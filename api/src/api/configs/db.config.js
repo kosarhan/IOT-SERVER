@@ -23,10 +23,13 @@ db.sequelize = sequelize;
 // db.user = require('../models/user.model')(sequelize, Sequelize);
 db.node = require('../models/node.model')(sequelize, Sequelize);
 db.temperature = require('../models/temperature.model')(sequelize, Sequelize);
+db.humidity = require('../models/humidity.model')(sequelize, Sequelize);
 
 const Temperature = db.temperature;
 const Node = db.node;
+const Humidity = db.humidity;
 
 Node.hasMany(Temperature, { foreignKey: 'nodeId' });
+Node.hasMany(Humidity, { foreignKey: 'nodeId' });
 
 module.exports = db;

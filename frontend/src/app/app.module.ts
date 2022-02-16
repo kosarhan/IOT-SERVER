@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NodeComponent } from './node/node.component';
 import { IndexComponent } from './index/index.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { IndexComponent } from './index/index.component';
     HttpClientModule,
     BrowserModule,
     AppRoutingModule,
-    NgChartsModule
+    NgChartsModule,
+    NgbModule
   ],
   providers: [],
   bootstrap: [AppComponent]

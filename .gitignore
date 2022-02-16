@@ -74,3 +74,6 @@ typings/
 
 # Testing
 test.py
+
+# Files For Database
+Database/*

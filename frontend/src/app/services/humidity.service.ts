@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Temperature } from '../models/temperature'; 
+import { Humidity } from '../models/humidity';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json'})
@@ -9,16 +9,16 @@ const httpOptions = {
 @Injectable({
   providedIn: 'root'
 })
-export class TemperatureService {
-  private url = 'http://localhost:8080/temperature';
+export class HumidityService {
+  private url = 'http://localhost:8080/humidity';
 
   constructor( private http: HttpClient) { }
 
-  getValuesByNodeId(nodeId: number): Observable<Temperature[]> {
-    return this.http.get<Temperature[]>(this.url + '/?nodeId=' + nodeId.toString());
+  getValuesByNodeId(nodeId: number): Observable<Humidity[]> {
+    return this.http.get<Humidity[]>(this.url + '/?nodeId=' + nodeId.toString());
   }
 
-  getValuesByNodeIdWithTimeFilters(nodeId: number, startDate: Date, endDate: Date): Observable<Temperature[]> {
+  getValuesByNodeIdWithTimeFilters(nodeId: number, startDate: Date, endDate: Date): Observable<Humidity[]> {
     let tempUrl = this.url + '/?nodeId=' + nodeId.toString();
 
     console.log(startDate);
@@ -30,6 +30,6 @@ export class TemperatureService {
       tempUrl += '&endDate=' + endDate.toISOString();
     }
 
-    return this.http.get<Temperature[]>(tempUrl);
+    return this.http.get<Humidity[]>(tempUrl);
   }
 }
