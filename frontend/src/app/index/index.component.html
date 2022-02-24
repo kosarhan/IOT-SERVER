@@ -1,13 +1,20 @@
-<table>
-    <thead>
-        <th>Node Id</th>
-        <th>Node Name</th>
-    </thead>
-    <tbody>
-        <tr *ngFor="let node of nodes">
-            <td>{{ node.id }}</td>
-            <td>{{ node.name}}</td>
-            <a href="/node/{{ node.id }}">Link</a>
-        </tr>
-    </tbody>
-</table>
+<div class="container node-table">
+    <div class="col-6 border border-3 rounded">
+        <div style="margin: 1em;">
+            <table class="table">
+                <thead>
+                    <th scope="col">Node Id</th>
+                    <th scope="col">Node Name</th>
+                    <th scope="col"></th>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let node of nodes" class="pe-auto" style="cursor: pointer;">
+                        <td scope="row" class="align-middle" [routerLink]="['/node/', node.id]">{{ node.id }}</td>
+                        <td class="align-middle" [routerLink]="['/node/', node.id]">{{ node.name}}</td>
+                        <td><a href="/node/{{ node.id }}/edit" class="btn btn-warning">Edit</a></td>
+                    </tr>
+                </tbody>
+            </table>    
+        </div>
+    </div>
+</div>

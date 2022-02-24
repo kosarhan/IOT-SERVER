@@ -15,11 +15,12 @@ import { HumidityService } from '../services/humidity.service';
   styleUrls: ['./node.component.css']
 })
 export class NodeComponent implements OnInit {
-  node = new Node;
+  node!: Node;
   temperatureValues: Temperature[] = [];
   humidityValues: Humidity[] = [];
+  height = 400;
 
-  constructor( 
+  constructor(
     private nodeService: NodeService,
     private temperatureService: TemperatureService,
     private humidityService: HumidityService,
@@ -27,7 +28,9 @@ export class NodeComponent implements OnInit {
 
   ngOnInit(): void {
     const temperatureChart = document.getElementById('temperature-chart') as HTMLCanvasElement;
+    const temperatureTable = document.getElementById('temperature-table') as HTMLElement;
     const humidityChart = document.getElementById('humidity-chart') as HTMLCanvasElement;
+    const humidityTable = document.getElementById('humidity-table') as HTMLElement;
     const id = Number(this.route.snapshot.paramMap.get('id'));
     let startDate, endDate;
 
@@ -51,28 +54,28 @@ export class NodeComponent implements OnInit {
       this.temperatureService.getValuesByNodeId(id).subscribe(temperatureValues => {
         this.temperatureValues = temperatureValues;
         // this.createChart(temperatureChart);
-        this.createChart(temperatureChart, 'Temperature Values', this.temperatureValues);
+        this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
       });
 
       this.humidityService.getValuesByNodeId(id).subscribe(humidityValues => {
         this.humidityValues = humidityValues;
-        this.createChart(humidityChart, "Humidity Values", this.humidityValues);
+        this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
       })
     } else {
       this.temperatureService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(temperatureValues => {
         this.temperatureValues = temperatureValues;
         // this.createChart(temperatureChart);
-        this.createChart(temperatureChart, 'Temperature Values', this.temperatureValues);
-      });  
+        this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
+      });
 
       this.humidityService.getValuesByNodeId(id).subscribe(humidityValues => {
         this.humidityValues = humidityValues;
-        this.createChart(humidityChart, "Humidity Values", this.humidityValues);
+        this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
       })
     }
   }
 
-  createChart(ctx: HTMLCanvasElement, label: string, arr: any[]): void {
+  createChart(ctx: HTMLCanvasElement, table: HTMLElement, label: string, arr: any[]): void {
     const labels: (Date | undefined)[] = [];
     const values: (number | undefined)[] = [];
 
@@ -84,24 +87,27 @@ export class NodeComponent implements OnInit {
     const myChart = new Chart(ctx, {
       type: 'line',
       data: {
-          labels: labels,
-          datasets: [{
-              label: label,
-              data: values,
-              fill: false,
-              borderColor: 'rgb(75, 192, 192)',
-              tension: 0.1
-          }]
+        labels: labels,
+        datasets: [{
+          label: label,
+          data: values,
+          fill: false,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1
+        }]
       },
       options: {
         maintainAspectRatio: false
       }
-  });
+    });
+
+    console.log(ctx.height);
+    table.style.height = ctx.style.height;
   }
 
   getDateTimeNow() {
     const current = new Date();
-    
+
     const year = current.getFullYear().toString();
     const month = (current.getMonth() + 1).toString().padStart(2, '0');
     const day = current.getDate().toString().padStart(2, '0');
@@ -115,7 +121,7 @@ export class NodeComponent implements OnInit {
   getDateTimeBeforeOneDay() {
     let date = new Date();
     date = new Date(date.getTime() - 1000 * 60 * 60 * 24);
-    
+
     const year = date.getFullYear().toString();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
