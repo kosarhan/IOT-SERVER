@@ -22,4 +22,13 @@ export class NodeEditComponent implements OnInit {
     this.nodeService.getNode(id).subscribe(node => this.node = node);
   }
 
+  updateNode(): void {
+    this.nodeService.updateNode(this.node);
+    // window.location.href = '/';
+  }
+
+  resetForm(): void { 
+
+  }
+
 }

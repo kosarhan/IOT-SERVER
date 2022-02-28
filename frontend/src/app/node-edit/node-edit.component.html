@@ -1,7 +1,7 @@
 <div class="container" style="margin-top: 2em;">
     <div class="col-6 border border-3 rounded">
         <div style="margin: 1em;">
-            <form #nodeForm="ngForm">
+            <form #nodeForm="ngForm" (ngSubmit)="updateNode()">
                 <div class="mb-3">
                     <label for="id">Node Id</label>
                     <input type="text" readonly class="form-control-plaintext" name="id" value="{{ node.id }}" [(ngModel)]="node.id">
@@ -24,10 +24,10 @@
                 <div class="mb-3">
                     <div class="d-flex">
                         <div class="float-end" style="margin-left: 1em;">
-                            <button type="button" class="btn btn-danger"> Cancel</button>
+                            <button type="reset" class="btn btn-danger"> Cancel</button>
                         </div>
                         <div class="float-end" style="margin-left: 1em;">
-                            <button type="button" class="btn btn-success"> Edit</button>
+                            <button type="submit" class="btn btn-success"> Edit</button>
                         </div>
                     </div>
                 </div>

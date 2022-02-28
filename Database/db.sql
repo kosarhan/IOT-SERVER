@@ -44,7 +44,30 @@ CREATE TABLE "TemperatureAlert"
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone,
     "deletedAt" timestamp with time zone,
-    PRIMARY KEY (id),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE "HumidityAlert" (
+    id SERIAL NOT NULL,
+    name text NOT NULL,
+    "minValue" float NOT NULL,
+    "maxValue" float NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone,
+    "deletedAt" timestamp with time zone,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE "Alert" (
+    "nodeId" int NOT NULL,
+	"temperatureAlertId" int,
+	"humidityAlertId" int,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone,
+    "deletedAt" timestamp with time zone,
+	FOREIGN KEY ("nodeId") REFERENCES "Node"(id),
+	FOREIGN KEY ("temperatureAlertId") REFERENCES "TemperatureAlert"(id),
+	FOREIGN KEY ("humidityAlertId") REFERENCES "HumidityAlert"(id)
 );
 
 -- Creating Trigger Functions
@@ -209,3 +232,21 @@ INSERT INTO "Temperature" ("value", "createdAt", "updatedAt", "nodeId") VALUES
     (153.71,'2022-02-11T13:44:57.285Z','2022-02-11T13:44:57.285Z',7),
     (153.71,'2022-02-11T13:46:58.111Z','2022-02-11T13:46:58.111Z',7),
     (153.71,'2022-02-11T13:49:05.625Z','2022-02-11T13:49:05.625Z',7)
+;
+
+INSERT INTO "TemperatureAlert" ("name", "minValue", "maxValue", "createdAt", "updatedAt") VALUES
+    ('Cat', 38.1, 39.2, NOW(), NOW()),
+    ('Dog', 37.9, 39.9, NOW(), NOW()),
+    ('Horse', 37.2, 38.2, NOW(), NOW()),
+    ('Chicken', 40.6, 43.0, NOW(), NOW()),
+    ('Sheep', 38.3, 39.9, NOW(), NOW()),
+    ('Goat', 38.5, 39.7, NOW(), NOW()),
+    ('Cattle', 36.7, 39.1, NOW(), NOW()),
+    ('Cow', 38.0, 39.3, NOW(), NOW()),
+    ('Pig', 38.7, 39.8, NOW(), NOW()),
+    ('Stable', 10.0, 15.0, NOW(), NOW())
+;
+
+INSERT INTO "HumidityAlert" ("name", "minValue", "maxValue", "createdAt", "updatedAt") VALUES
+    ('Stable', 50.0, 75.0, NOW(), NOW())
+;
