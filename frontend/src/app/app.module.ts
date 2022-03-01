@@ -14,13 +14,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { NodeEditComponent } from './node-edit/node-edit.component';
+import { NodeAlertComponent } from './node-alert/node-alert.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NodeComponent,
     IndexComponent,
-    NodeEditComponent
+    NodeEditComponent,
+    NodeAlertComponent
   ],
   imports: [
     HttpClientModule,

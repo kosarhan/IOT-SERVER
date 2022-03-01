@@ -35,14 +35,19 @@ const db = require('./api/configs/db.config');
 require('./api/routes/node.route')(app);
 require('./api/routes/temperature.route')(app);
 require('./api/routes/humidity.route')(app);
+require('./api/routes/alert.route')(app);
+require('./api/routes/temperatureAlert.route')(app);
+require('./api/routes/humidityAlert.route')(app);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
 
 // Create a Server
-var server = app.listen(8080, function() {
-  let host = server.address().address;
-  let port = server.address().port;
+const server = app.listen(8080, () => {
+  const { address: host, port } = server.address();
+  // let host = server.address().address;
+  // let port = server.address().port;
 
-  console.log("App listening at http://%s:%s", host, port);
-})
+  console.log('App listening at http://%s:%s', host, port);
+  // console.log('App listening at http://%s:%s', address, port);
+});

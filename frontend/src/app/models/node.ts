@@ -1,7 +1,7 @@
-export class Node {
-    id: number | undefined;
-    name: string | undefined;
-    createdAt: Date | undefined;
-    updatedAt: Date | undefined;
-    deletedAt: Date | undefined;
+export interface Node {
+    id: number;
+    name: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date;
 }

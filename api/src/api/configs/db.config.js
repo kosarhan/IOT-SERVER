@@ -26,7 +26,7 @@ db.temperature = require('../models/temperature.model')(sequelize, Sequelize);
 db.humidity = require('../models/humidity.model')(sequelize, Sequelize);
 db.alert = require('../models/alert.model')(sequelize, Sequelize);
 db.temperatureAlert = require('../models/temperatureAlert.model')(sequelize, Sequelize);
-db.humidityAlert = require('../models/temperatureAlert.model')(sequelize, Sequelize);
+db.humidityAlert = require('../models/humidityAlert.model')(sequelize, Sequelize);
 
 const Temperature = db.temperature;
 const Node = db.node;
