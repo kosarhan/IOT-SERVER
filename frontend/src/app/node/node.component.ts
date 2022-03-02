@@ -9,13 +9,28 @@ import { NodeService } from '../services/node.service';
 import { TemperatureService } from '../services/temperature.service';
 import { HumidityService } from '../services/humidity.service';
 
+export interface TimeFilter {
+  startDate: string;
+  endDate: string;
+}
+
 @Component({
   selector: 'app-node',
   templateUrl: './node.component.html',
   styleUrls: ['./node.component.css']
 })
 export class NodeComponent implements OnInit {
-  node!: Node;
+  node: Node = {
+    id: -1,
+    name: '',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: new Date(),
+  };
+  filter: TimeFilter = {
+    startDate: this.getDateTimeBeforeOneDay(),
+    endDate: this.getDateTimeNow()
+  };
   temperatureValues: Temperature[] = [];
   humidityValues: Humidity[] = [];
   height = 400;
@@ -34,17 +49,26 @@ export class NodeComponent implements OnInit {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     let startDate, endDate;
 
-    if (this.route.snapshot.queryParamMap.get('start-date') !== null) {
-      startDate = new Date(this.route.snapshot.queryParamMap.get('start-date') as string);
+    // console.log(this.filter);
+
+    if (this.route.snapshot.queryParamMap.get('startDate') !== null) {
+      startDate = new Date(this.route.snapshot.queryParamMap.get('startDate') as string);
+      this.filter.startDate = this.route.snapshot.queryParamMap.get('startDate') as string;
+      this.filter.startDate = this.filter.startDate.replace('Z', '');
     } else {
       startDate = undefined;
     }
 
-    if (this.route.snapshot.queryParamMap.get('end-date') !== null) {
-      endDate = new Date(this.route.snapshot.queryParamMap.get('end-date') as string);
+    if (this.route.snapshot.queryParamMap.get('endDate') !== null) {
+      endDate = new Date(this.route.snapshot.queryParamMap.get('endDate') as string);
+      this.filter.endDate = this.route.snapshot.queryParamMap.get('endDate') as string;
+      this.filter.endDate = this.filter.endDate.replace('Z', '');
     } else {
       endDate = new Date(Date.now());
     }
+
+    console.log(startDate);
+    console.log(endDate);
 
     this.nodeService.getNode(id).subscribe(node => {
       this.node = node;
@@ -64,11 +88,12 @@ export class NodeComponent implements OnInit {
     } else {
       this.temperatureService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(temperatureValues => {
         this.temperatureValues = temperatureValues;
+
         // this.createChart(temperatureChart);
         this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
       });
 
-      this.humidityService.getValuesByNodeId(id).subscribe(humidityValues => {
+      this.humidityService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(humidityValues => {
         this.humidityValues = humidityValues;
         this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
       })
@@ -76,11 +101,11 @@ export class NodeComponent implements OnInit {
   }
 
   createChart(ctx: HTMLCanvasElement, table: HTMLElement, label: string, arr: any[]): void {
-    const labels: (Date | undefined)[] = [];
+    const labels: (string | undefined)[] = [];
     const values: (number | undefined)[] = [];
 
     arr.forEach(data => {
-      labels.push(data.updatedAt);
+      labels.push(new Date(data.updatedAt).toLocaleString());
       values.push(data.value);
     });
 
@@ -131,4 +156,24 @@ export class NodeComponent implements OnInit {
 
     return year + '-' + month + '-' + day + 'T' + hour + ':' + minute;
   };
+
+  filterData(data: TimeFilter): void {
+    // console.log(data);
+    if (data.startDate != undefined) {
+      let url = '/node/' + this.node.id + '?';
+      // url += 'startDate=' + data.startDate;
+      url += 'startDate=' + data.startDate + 'Z';
+      // url += 'startDate=' + data.startDate + ':00Z';
+
+      if (data.endDate != undefined) {
+        // url += '&endDate=' + data.endDate;
+        url += '&endDate=' + data.endDate + 'Z';
+        // url += '&endDate=' + data.endDate + ':00Z';
+      }
+
+      // window.location.href = '/node/' + this.node.id;
+      window.location.href = url;
+      // console.log(url);
+    }
+  }
 }

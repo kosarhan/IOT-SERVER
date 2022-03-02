@@ -1,14 +1,14 @@
 <div class="container-fluid">
     <div class="row"><h1>{{ node.name }}</h1></div>
     <div class="row">
-        <form action="/node/{{ node.id }}" method="GET" class="row">
+        <form class="row" #filterForm="ngForm" (ngSubmit)="filterData(filterForm.value)">
             <div class="col-2">
-                <label for="start-date">Start Time:</label>
-                <input type="datetime-local" id="start-date" name="start-date" value="{{ getDateTimeBeforeOneDay() }}">    
+                <label for="startDate">Start Time:</label>
+                <input type="datetime-local" id="startDate" name="startDate" value="{{ filter.startDate }}" [(ngModel)]="filter.startDate">
             </div>
             <div class="col-2">
-                <label for="end-date">End Time:</label>
-                <input type="datetime-local" id="end-date" name="end-date" value="{{ getDateTimeNow() }}">
+                <label for="endDate">End Time:</label>
+                <input type="datetime-local" id="endDate" name="endDate" value="{{ filter.endDate }}" [(ngModel)]="filter.endDate">
             </div>
             <div class="col-2">
                 <button type="submit">Filter</button>
