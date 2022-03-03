@@ -35,10 +35,22 @@ const Alert = db.alert;
 const TemperatureAlert = db.temperatureAlert;
 const HumidityAlert = db.humidityAlert;
 
+// Node.hasMany(Temperature, { foreignKey: 'nodeId' });
+// Node.hasMany(Humidity, { foreignKey: 'nodeId' });
+// Node.hasOne(Alert, { foreignKey: 'nodeId' });
+
 Node.hasMany(Temperature, { foreignKey: 'nodeId' });
+// Temperature.belongsTo(Node);
+
 Node.hasMany(Humidity, { foreignKey: 'nodeId' });
+// Humidity.belongsTo(Node);
+
 Node.hasOne(Alert, { foreignKey: 'nodeId' });
-TemperatureAlert.hasOne(Alert, { foreignKey: 'nodeId' });
-HumidityAlert.hasOne(Alert, { foreignKey: 'nodeId' });
+// Alert.belongsTo(Node);
+
+TemperatureAlert.hasOne(Alert, { foreignKey: 'temperatureAlertId' });
+// Alert.belongsTo(TemperatureAlert);
+HumidityAlert.hasOne(Alert, { foreignKey: 'humidityAlertId' });
+// Alert.belongsTo(HumidityAlert);
 
 module.exports = db;

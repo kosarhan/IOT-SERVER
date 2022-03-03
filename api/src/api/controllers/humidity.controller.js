@@ -21,7 +21,9 @@ exports.controlFetchCommands = (req, res) => {
   if (Object.keys(query).length === 0) {
     this.getAll(req, res);
   } else {
-    const { nodeId, startDate, endDate } = query;
+    const {
+      nodeId, startDate, endDate, page, pageSize
+    } = query;
     const dateFilters = {};
 
     dateFilters.startDate = new Date(startDate);
@@ -31,15 +33,18 @@ exports.controlFetchCommands = (req, res) => {
 
     if (nodeId !== undefined) {
       if (startDate !== undefined) {
-        this.getAllByTimeFiltersWithId(req, res, nodeId, dateFilters);
+        this.getAllByTimeFiltersWithId(req, res, nodeId, dateFilters, page, pageSize);
         // console.log(dateFilters);
         flag = false;
       } else {
-        this.getAllByNodeId(req, res, nodeId);
+        this.getAllByNodeId(req, res, nodeId, page, pageSize);
         flag = false;
       }
     } else if (startDate !== undefined) {
       this.getAllByTimeFilters(req, res, dateFilters);
+      flag = false;
+    } else {
+      this.getAll(req, res);
       flag = false;
     }
 
@@ -61,9 +66,23 @@ exports.getAll = (req, res) => {
 };
 
 // FETCH All Humidity Values That Has Node Id
-exports.getAllByNodeId = (req, res, nodeId) => {
+exports.getAllByNodeId = (req, res, nodeId, page = undefined, pageSize = undefined) => {
   // const nodeId = req.params.nodeId;
-  Humidity.findAll({ where: { nodeId: nodeId} }).then((humidity) => {
+  let options;
+
+  if (pageSize === undefined) {
+    options = { where: { nodeId } };
+  } else {
+    if (page === undefined) { page = 0; }
+
+    options = {
+      where: { nodeId },
+      offset: page * pageSize,
+      limit: pageSize
+    };
+  }
+
+  Humidity.findAll(options).then((humidity) => {
     // Send All Humidity Values to Client
     res.json(humidity.sort((c1, c2) => c1.id - c2.id));
   }).catch((err) => {
@@ -73,20 +92,42 @@ exports.getAllByNodeId = (req, res, nodeId) => {
 };
 
 // FETCH All Humidity Values That Has Node Id due to start and end dates
-exports.getAllByTimeFiltersWithId = (req, res, nodeId, dateFilters) => {
+exports.getAllByTimeFiltersWithId = (req, res, nodeId, dateFilters, page = undefined,
+  pageSize = undefined) => {
   // const nodeId = req.params.nodeId;
   const { startDate, endDate } = dateFilters;
 
-  Humidity.findAll({
-    where: {
-      nodeId,
-      // updatedAt: { [Op.between]: [startDate, endDate] }
-      updatedAt: {
-        [Op.gt]: startDate,
-        [Op.lt]: endDate
+  let options;
+
+  if (pageSize === undefined) {
+    options = {
+      where: {
+        nodeId,
+        // updatedAt: { [Op.between]: [startDate, endDate] }
+        updatedAt: {
+          [Op.gt]: startDate,
+          [Op.lt]: endDate
+        }
       }
-    }
-  }).then((humidity) => {
+    };
+  } else {
+    if (page === undefined) { page = 0; }
+
+    options = {
+      where: {
+        nodeId,
+        // updatedAt: { [Op.between]: [startDate, endDate] }
+        updatedAt: {
+          [Op.gt]: startDate,
+          [Op.lt]: endDate
+        }
+      },
+      offset: page * pageSize,
+      limit: pageSize
+    };
+  }
+
+  Humidity.findAll(options).then((humidity) => {
     // Send All Humidity Values to Client
     res.json(humidity.sort((c1, c2) => c1.id - c2.id));
   }).catch((err) => {
@@ -121,7 +162,7 @@ exports.getAllByTimeFilters = (req, res, dateFilters) => {
 // Update a Humidity Value
 exports.update = (req, res) => {
   const { id } = req.params;
-  Humidity.update(req.body, { where: { id: id} }).then(() => {
+  Humidity.update(req.body, { where: { id } }).then(() => {
     res.status(200).json({ mgs: `Updated Successfully -> Humidity Value Id = ${id}` });
   }).catch((err) => {
     console.log(err);
@@ -132,7 +173,7 @@ exports.update = (req, res) => {
 // Delete a Humidity Value by Id
 exports.delete = (req, res) => {
   const { id } = req.params;
-  Humidity.destroy({ where: { id: id} }).then(() => {
+  Humidity.destroy({ where: { id } }).then(() => {
     res.status(200).json({ msg: `Deleted Successfully -> Humidity Value Id = ${id}` });
   }).catch((err) => {
     console.log(err);

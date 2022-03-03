@@ -18,11 +18,24 @@ export class HumidityService {
     return this.http.get<Humidity[]>(this.url + '/?nodeId=' + nodeId.toString());
   }
 
+  getValuesByNodeIdByPageSize(nodeId: number, page:string|null, pageSize:string|null): Observable<Humidity[]>{
+    if(pageSize !== null){
+      if(page === null){
+        return this.http.get<Humidity[]>(this.url + '/?nodeId=' + nodeId.toString() + '&pageSize=' + pageSize);
+      } else {
+        return this.http.get<Humidity[]>(this.url + '/?nodeId=' + nodeId.toString() + '&page=' + page + '&pageSize=' + pageSize);
+      }
+    }
+
+    return this.http.get<Humidity[]>(this.url + '/?nodeId=' + nodeId.toString());
+  }
+
+
   getValuesByNodeIdWithTimeFilters(nodeId: number, startDate: Date, endDate: Date): Observable<Humidity[]> {
     let tempUrl = this.url + '/?nodeId=' + nodeId.toString();
 
-    console.log(startDate);
-    console.log(endDate);
+    // console.log(startDate);
+    // console.log(endDate);
 
     tempUrl += '&startDate=' + startDate.toISOString();
 

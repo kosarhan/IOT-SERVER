@@ -18,6 +18,18 @@ export class TemperatureService {
     return this.http.get<Temperature[]>(this.url + '/?nodeId=' + nodeId.toString());
   }
 
+  getValuesByNodeIdByPageSize(nodeId: number, page:string|null, pageSize:string|null): Observable<Temperature[]>{
+    if(pageSize !== null){
+      if(page === null){
+        return this.http.get<Temperature[]>(this.url + '/?nodeId=' + nodeId.toString() + '&pageSize=' + pageSize);
+      } else {
+        return this.http.get<Temperature[]>(this.url + '/?nodeId=' + nodeId.toString() + '&page=' + page + '&pageSize=' + pageSize);
+      }
+    }
+
+    return this.http.get<Temperature[]>(this.url + '/?nodeId=' + nodeId.toString());
+  }
+
   getValuesByNodeIdWithTimeFilters(nodeId: number, startDate: Date, endDate: Date): Observable<Temperature[]> {
     let tempUrl = this.url + '/?nodeId=' + nodeId.toString();
 

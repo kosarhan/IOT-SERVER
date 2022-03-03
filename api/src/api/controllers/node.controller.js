@@ -15,7 +15,7 @@ exports.create = (req, res) => {
 
 // Fetch Node By Id
 exports.getById = (req, res) => {
-  const id = req.params.id;
+  const { id } = req.params;
   Node.findByPk(id).then((node) => {
     res.json(node);
   }).catch((err) => {

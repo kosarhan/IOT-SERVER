@@ -28,12 +28,17 @@ export class NodeComponent implements OnInit {
     deletedAt: new Date(),
   };
   filter: TimeFilter = {
-    startDate: this.getDateTimeBeforeOneDay(),
+    startDate: '',
     endDate: this.getDateTimeNow()
   };
   temperatureValues: Temperature[] = [];
   humidityValues: Humidity[] = [];
+  temperatureChartData: Temperature[] = [];
+  humidityCharData: Humidity[] = [];
   height = 400;
+
+  temperatureAlert: boolean = false;
+  humidityAlert: boolean = false;
 
   constructor(
     private nodeService: NodeService,
@@ -48,8 +53,12 @@ export class NodeComponent implements OnInit {
     const humidityTable = document.getElementById('humidity-table') as HTMLElement;
     const id = Number(this.route.snapshot.paramMap.get('id'));
     let startDate, endDate;
+    let page = this.route.snapshot.queryParamMap.get('page');
+    let pageSize = this.route.snapshot.queryParamMap.get('pageSize');
 
     // console.log(this.filter);
+    // console.log(page);
+    // console.log(pageSize);
 
     if (this.route.snapshot.queryParamMap.get('startDate') !== null) {
       startDate = new Date(this.route.snapshot.queryParamMap.get('startDate') as string);
@@ -67,36 +76,60 @@ export class NodeComponent implements OnInit {
       endDate = new Date(Date.now());
     }
 
-    console.log(startDate);
-    console.log(endDate);
-
     this.nodeService.getNode(id).subscribe(node => {
       this.node = node;
     });
 
-    if (startDate === undefined) {
-      this.temperatureService.getValuesByNodeId(id).subscribe(temperatureValues => {
-        this.temperatureValues = temperatureValues;
-        // this.createChart(temperatureChart);
-        this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
-      });
+    if (pageSize === null) {
+      if (startDate === undefined) {
+        this.temperatureService.getValuesByNodeId(id).subscribe(temperatureValues => {
+          this.temperatureValues = temperatureValues;
+          // this.createChart(temperatureChart);
+          this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
+        });
 
-      this.humidityService.getValuesByNodeId(id).subscribe(humidityValues => {
-        this.humidityValues = humidityValues;
-        this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
-      })
+        this.humidityService.getValuesByNodeId(id).subscribe(humidityValues => {
+          this.humidityValues = humidityValues;
+          this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
+        })
+      } else {
+        this.temperatureService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(temperatureValues => {
+          this.temperatureValues = temperatureValues;
+
+          // this.createChart(temperatureChart);
+          this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
+        });
+
+        this.humidityService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(humidityValues => {
+          this.humidityValues = humidityValues;
+          this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
+        })
+      }
     } else {
-      this.temperatureService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(temperatureValues => {
-        this.temperatureValues = temperatureValues;
+      if (startDate === undefined) {
+        this.temperatureService.getValuesByNodeIdByPageSize(id, page, pageSize).subscribe(temperatureValues => {
+          this.temperatureValues = temperatureValues;
+          // this.createChart(temperatureChart);
+          this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
+        });
 
-        // this.createChart(temperatureChart);
-        this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
-      });
+        this.humidityService.getValuesByNodeIdByPageSize(id, page, pageSize).subscribe(humidityValues => {
+          this.humidityValues = humidityValues;
+          this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
+        })
+      } else {
+        this.temperatureService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(temperatureValues => {
+          this.temperatureValues = temperatureValues;
 
-      this.humidityService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(humidityValues => {
-        this.humidityValues = humidityValues;
-        this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
-      })
+          // this.createChart(temperatureChart);
+          this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
+        });
+
+        this.humidityService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(humidityValues => {
+          this.humidityValues = humidityValues;
+          this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
+        })
+      }
     }
   }
 
@@ -126,7 +159,6 @@ export class NodeComponent implements OnInit {
       }
     });
 
-    console.log(ctx.height);
     table.style.height = ctx.style.height;
   }
 
@@ -161,13 +193,13 @@ export class NodeComponent implements OnInit {
     // console.log(data);
     if (data.startDate != undefined) {
       let url = '/node/' + this.node.id + '?';
-      // url += 'startDate=' + data.startDate;
-      url += 'startDate=' + data.startDate + 'Z';
+      url += 'startDate=' + data.startDate;
+      // url += 'startDate=' + data.startDate + 'Z';
       // url += 'startDate=' + data.startDate + ':00Z';
 
       if (data.endDate != undefined) {
-        // url += '&endDate=' + data.endDate;
-        url += '&endDate=' + data.endDate + 'Z';
+        url += '&endDate=' + data.endDate;
+        // url += '&endDate=' + data.endDate + 'Z';
         // url += '&endDate=' + data.endDate + ':00Z';
       }
 

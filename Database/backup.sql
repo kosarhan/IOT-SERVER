@@ -162,6 +162,7 @@ INSERT INTO "Temperature" (id, value, "nodeId", "createdAt", "updatedAt", "delet
 	(161, 123.45, 7, '2022-03-02T10:33:14.896Z', '2022-03-02T10:33:14.896Z', NULL),
 	(162, 123.45, 7, '2022-03-02T10:37:32.442Z', '2022-03-02T10:37:32.442Z', NULL)
 ;
+
 INSERT INTO "Humidity" (id, value, "nodeId", "createdAt", "updatedAt", "deletedAt") VALUES
 	(1, 43.2, 8, '2022-02-15T12:23:36.766Z', '2022-02-15T12:23:36.766Z', NULL),
 	(2, 43.1, 8, '2022-02-15T12:24:43.485Z', '2022-02-15T12:24:43.485Z', NULL),

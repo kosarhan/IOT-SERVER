@@ -59,12 +59,14 @@ CREATE TABLE "HumidityAlert" (
 );
 
 CREATE TABLE "Alert" (
+    id SERIAL NOT NULL,
     "nodeId" int NOT NULL,
 	"temperatureAlertId" int,
 	"humidityAlertId" int,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone,
     "deletedAt" timestamp with time zone,
+    PRIMARY KEY (id),
 	FOREIGN KEY ("nodeId") REFERENCES "Node"(id),
 	FOREIGN KEY ("temperatureAlertId") REFERENCES "TemperatureAlert"(id),
 	FOREIGN KEY ("humidityAlertId") REFERENCES "HumidityAlert"(id)
@@ -86,8 +88,10 @@ CREATE OR REPLACE FUNCTION process_insert_value() RETURNS TRIGGER AS $insert_val
 		IF (deleted_node_count = 0) THEN
 			IF (TG_OP = 'INSERT' AND node_count = 0) THEN
 				INSERT INTO "Node"("id", "name", "createdAt", "updatedAt") VALUES (NEW."nodeId", CONCAT('Node Address ', NEW."nodeId"), NOW(), NOW());
+				INSERT INTO "Alert"("nodeId", "createdAt", "updatedAt") VALUES (NEW."nodeId", NOW(), NOW());
 			ELSIF (TG_OP = 'UPDATE' AND node_count = 0) THEN
 				INSERT INTO "Node"("id", "name", "createdAt", "updatedAt") VALUES (NEW."nodeId", CONCAT('Node Address ', NEW."nodeId"), NOW(), NOW());
+				INSERT INTO "Alert"("nodeId", "createdAt", "updatedAt") VALUES (NEW."nodeId", NOW(), NOW());
 			END IF;
 			
 			RETURN NEW;
@@ -118,4 +122,8 @@ INSERT INTO "TemperatureAlert" ("name", "minValue", "maxValue", "createdAt", "up
 
 INSERT INTO "HumidityAlert" ("name", "minValue", "maxValue", "createdAt", "updatedAt") VALUES
     ('Stable', 50.0, 75.0, NOW(), NOW())
+;
+
+INSERT INTO "Alert" ("nodeId", "temperatureAlertId", "humidityAlertId", "createdAt", "updatedAt") VALUES 
+	(8, 2, 1, NOW(), NOW())
 ;
