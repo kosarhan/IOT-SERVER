@@ -14,6 +14,17 @@ exports.create = (req, res) => {
   });
 };
 
+// Fetch A Humidity Alert
+exports.getById = (req, res) => {
+  const { id } = req.params;
+  HumidityAlert.findByPk(id).then((humidityAlert) => {
+    res.json(humidityAlert);
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).json({ msg: 'error', details: err });
+  });
+};
+
 // FETCH All Humidity Alerts
 exports.getAll = (req, res) => {
   HumidityAlert.findAll().then((humidityAlert) => {

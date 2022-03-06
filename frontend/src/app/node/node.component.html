@@ -1,31 +1,52 @@
 <div class="container-fluid">
-    <div class="row"><h1>{{ node.name }}</h1></div>
+    <div class="row bottom-line">
+        <div class="row mt-3 mb-3">
+            <div class="col-11">
+                <h1>{{ node.name }}</h1>
+            </div>
+            <div class="col-1 float-end">
+                <button class="btn btn-primary" (click)="refreshPage()">Refresh In {{ timer }}</button>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
-        <form class="row" #filterForm="ngForm" (ngSubmit)="filterData(filterForm.value)">
-            <div class="col-2">
-                <label for="startDate">Start Time:</label>
-                <input type="datetime-local" id="startDate" name="startDate" value="{{ filter.startDate }}" [(ngModel)]="filter.startDate">
-            </div>
-            <div class="col-2">
-                <label for="endDate">End Time:</label>
-                <input type="datetime-local" id="endDate" name="endDate" value="{{ filter.endDate }}" [(ngModel)]="filter.endDate">
-            </div>
-            <div class="col-2">
-                <button type="submit">Filter</button>
-            </div>
-        </form>
+        <div class="col-6">
+            <form class="row" #filterForm="ngForm" (ngSubmit)="filterData(filterForm.value)">
+                <div class="col-4">
+                    <label for="startDate">Start Time:</label>
+                    <input type="datetime-local" id="startDate" name="startDate" value="{{ filter.startDate }}"
+                        [(ngModel)]="filter.startDate">
+                </div>
+                <div class="col-4">
+                    <label for="endDate">End Time:</label>
+                    <input type="datetime-local" id="endDate" name="endDate" value="{{ filter.endDate }}"
+                        [(ngModel)]="filter.endDate">
+                </div>
+                <div class="col-4">
+                    <button type="submit">Filter</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <br>
 
     <div class="row" style="margin-bottom: 100px;">
-        <div>
-            <h3>Temperature</h3>
+        <div class="bottom-line">
+            <h2>Temperature</h2>
+        </div>
+
+        <div class="pr-3 pl-3" *ngIf="temperatureAlertControl">
+            <div class="alert alert-danger" role="alert">
+                {{ temperatureAlertMessage }}
+            </div>
         </div>
 
         <div class="row">
             <div class="col-md-9">
-                <div class="chart-container" style="position: relative"><canvas id="temperature-chart" width="400" height="{{ height}}"></canvas></div>
+                <div class="chart-container" style="position: relative"><canvas id="temperature-chart" width="400"
+                        height="{{ height}}"></canvas></div>
             </div>
             <div class="col-md-3">
                 <div style="overflow-y: scroll;" id="temperature-table">
@@ -51,13 +72,20 @@
 
 
     <div class="row" style="margin-bottom: 150px;">
-        <div>
-            <h3>Humidity</h3>
+        <div class="bottom-line">
+            <h2>Humidity</h2>
+        </div>
+
+        <div class="pr-3 pl-3" *ngIf="humidityAlertControl">
+            <div class="alert alert-danger" role="alert">
+                {{ humidityAlertMessage }}
+            </div>
         </div>
 
         <div class="row">
             <div class="col-md-9">
-                <div class="chart-container" style="position: relative"><canvas id="humidity-chart" width="400" height="{{ height}}"></canvas></div>
+                <div class="chart-container" style="position: relative"><canvas id="humidity-chart" width="400"
+                        height="{{ height}}"></canvas></div>
             </div>
             <div class="col-md-3">
                 <div style="overflow-y: scroll;" id="humidity-table">

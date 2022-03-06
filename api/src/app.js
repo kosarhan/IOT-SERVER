@@ -38,6 +38,7 @@ require('./api/routes/humidity.route')(app);
 require('./api/routes/alert.route')(app);
 require('./api/routes/temperatureAlert.route')(app);
 require('./api/routes/humidityAlert.route')(app);
+require('./api/routes/alertLog.route')(app);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);

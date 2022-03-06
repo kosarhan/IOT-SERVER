@@ -61,8 +61,8 @@ CREATE TABLE "HumidityAlert" (
 CREATE TABLE "Alert" (
     id SERIAL NOT NULL,
     "nodeId" int NOT NULL,
-	"temperatureAlertId" int,
-	"humidityAlertId" int,
+	"temperatureAlertId" int DEFAULT 1,
+	"humidityAlertId" int DEFAULT 1,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone,
     "deletedAt" timestamp with time zone,
@@ -70,6 +70,17 @@ CREATE TABLE "Alert" (
 	FOREIGN KEY ("nodeId") REFERENCES "Node"(id),
 	FOREIGN KEY ("temperatureAlertId") REFERENCES "TemperatureAlert"(id),
 	FOREIGN KEY ("humidityAlertId") REFERENCES "HumidityAlert"(id)
+);
+
+CREATE TABLE "AlertLog" (
+    id SERIAL NOT NULL,
+    "nodeId" int NOT NULL,
+    "message" text NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone,
+    "deletedAt" timestamp with time zone,
+    PRIMARY KEY (id),
+	FOREIGN KEY ("nodeId") REFERENCES "Node"(id)
 );
 
 -- Creating Trigger Functions
@@ -108,6 +119,7 @@ CREATE TRIGGER insert_humidity_value BEFORE INSERT OR UPDATE ON "Humidity" FOR E
 -- Creating Example Data
 
 INSERT INTO "TemperatureAlert" ("name", "minValue", "maxValue", "createdAt", "updatedAt") VALUES
+    ('None', 0, 0, NOW(), NOW()),
     ('Cat', 38.1, 39.2, NOW(), NOW()),
     ('Dog', 37.9, 39.9, NOW(), NOW()),
     ('Horse', 37.2, 38.2, NOW(), NOW()),
@@ -121,9 +133,10 @@ INSERT INTO "TemperatureAlert" ("name", "minValue", "maxValue", "createdAt", "up
 ;
 
 INSERT INTO "HumidityAlert" ("name", "minValue", "maxValue", "createdAt", "updatedAt") VALUES
+    ('None', 0, 0, NOW(), NOW()),
     ('Stable', 50.0, 75.0, NOW(), NOW())
 ;
 
 INSERT INTO "Alert" ("nodeId", "temperatureAlertId", "humidityAlertId", "createdAt", "updatedAt") VALUES 
-	(8, 2, 1, NOW(), NOW())
+	(8, 2, 2, NOW(), NOW())
 ;

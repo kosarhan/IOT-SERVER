@@ -1,60 +1,59 @@
 const db = require('../configs/db.config');
 
-const Alert = db.alert;
+const AlertLog = db.alertLog;
 
-// Post a Alert
+// Post a Alert Log
 exports.create = (req, res) => {
   // Save to PostgreSQL database
-  Alert.create(req.body).then((alert) => {
-    // Send created alert to client
-    res.json(alert);
+  AlertLog.create(req.body).then((alertLog) => {
+    // Send created alert log to client
+    res.json(alertLog);
   }).catch((err) => {
     console.log(err);
     res.status(500).json({ msg: 'error', details: err });
   });
 };
 
-// Fetch an alert by node id
+// Fetch all alert logs by node id
 exports.getByNodeId = (req, res) => {
   const { nodeId } = req.params;
 
-  Alert.findOne({ where: { nodeId: nodeId } }).then((alert) => {
-    res.json(alert);
+  AlertLog.findAll({ where: { nodeId: nodeId } }).then((alertLog) => {
+    res.json(alertLog);
   }).catch((err) => {
     console.log(err);
     res.status(500).json({ msg: 'error', details: err });
   });
 };
 
-// FETCH All Alerts
+// FETCH All Alert Logs
 exports.getAll = (req, res) => {
-  Alert.findAll().then((alert) => {
-    // Send All Alerts to Client
-    res.json(alert.sort((c1, c2) => c1.id - c2.id));
+  AlertLog.findAll().then((alertLog) => {
+    // Send All Alert Logs to Client
+    res.json(alertLog.sort((c1, c2) => c1.id - c2.id));
   }).catch((err) => {
     console.log(err);
     res.status(500).json({ msg: 'error', details: err });
   });
 };
 
-// Update a Alert
+// Update a Alert Log
 exports.update = (req, res) => {
   const { id } = req.params;
 
-  Alert.update(req.body, { where: { id: id } }).then((test) => {
-    console.log(test);
-    res.status(200).json({ mgs: `Updated Successfully -> Alert Value Id = ${id}` });
+  AlertLog.update(req.body, { where: { id: id } }).then((test) => {
+    res.status(200).json({ mgs: `Updated Successfully -> Alert Log Id = ${id}` });
   }).catch((err) => {
     console.log(err);
     res.status(500).json({ msg: 'error', details: err });
   });
 };
 
-// Delete a Alert by Id
+// Delete a Alert Log by Id
 exports.delete = (req, res) => {
   const { id } = req.params;
-  Alert.destroy({ where: { id: id} }).then(() => {
-    res.status(200).json({ msg: `Deleted Successfully -> Alert Id = ${id}` });
+  AlertLog.destroy({ where: { id: id} }).then(() => {
+    res.status(200).json({ msg: `Deleted Successfully -> Alert Log Id = ${id}` });
   }).catch((err) => {
     console.log(err);
     res.status(500).json({ msg: 'error', details: err });

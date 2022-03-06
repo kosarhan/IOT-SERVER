@@ -1,0 +1,7 @@
+.bottom-line {
+    border-bottom-width: 2px;
+    border-bottom-style: dotted;
+    border-bottom-color: black;
+
+    margin-bottom: 2em;
+}

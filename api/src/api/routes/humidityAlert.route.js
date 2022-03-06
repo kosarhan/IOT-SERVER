@@ -5,7 +5,7 @@ module.exports = function (app) {
   app.post('/humidity_alert', humidityAlert.create);
 
   // Retrieve humidity by id
-  // app.get('/humidity_alert/:id', humidityAlert.getById);
+  app.get('/humidity_alert/:id', humidityAlert.getById);
 
   // Retrieve all humidity
   app.get('/humidity_alert', humidityAlert.getAll);

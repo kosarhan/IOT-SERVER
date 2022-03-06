@@ -8,6 +8,9 @@ import { Humidity } from '../models/humidity';
 import { NodeService } from '../services/node.service';
 import { TemperatureService } from '../services/temperature.service';
 import { HumidityService } from '../services/humidity.service';
+import { AlertService } from '../services/alert.service';
+import { TemperatureAlertService } from '../services/temperature-alert.service';
+import { HumidityAlertService } from '../services/humidity-alert.service';
 
 export interface TimeFilter {
   startDate: string;
@@ -29,36 +32,45 @@ export class NodeComponent implements OnInit {
   };
   filter: TimeFilter = {
     startDate: '',
-    endDate: this.getDateTimeNow()
+    endDate: ''
   };
   temperatureValues: Temperature[] = [];
   humidityValues: Humidity[] = [];
-  temperatureChartData: Temperature[] = [];
-  humidityCharData: Humidity[] = [];
+  refreshFunction: any;
   height = 400;
+  interval = 30;
+  timer!: number;
 
-  temperatureAlert: boolean = false;
-  humidityAlert: boolean = false;
+  alertControl: boolean = false;
+  temperatureAlertControl: boolean = false;
+  humidityAlertControl: boolean = false;
+  alertMessage: string = '';
+  temperatureAlertMessage: string = '';
+  humidityAlertMessage: string = '';
+
+  temperatureChart!: HTMLCanvasElement;
+  temperatureTable!: HTMLElement;
+  humidityChart!: HTMLCanvasElement;
+  humidityTable!: HTMLElement;
 
   constructor(
     private nodeService: NodeService,
     private temperatureService: TemperatureService,
     private humidityService: HumidityService,
+    private alertService: AlertService,
+    private temperatureAlertService: TemperatureAlertService,
+    private humidityAlertService: HumidityAlertService,
     private route: ActivatedRoute) { }
 
   ngOnInit(): void {
-    const temperatureChart = document.getElementById('temperature-chart') as HTMLCanvasElement;
-    const temperatureTable = document.getElementById('temperature-table') as HTMLElement;
-    const humidityChart = document.getElementById('humidity-chart') as HTMLCanvasElement;
-    const humidityTable = document.getElementById('humidity-table') as HTMLElement;
+    this.temperatureChart = document.getElementById('temperature-chart') as HTMLCanvasElement;
+    this.temperatureTable = document.getElementById('temperature-table') as HTMLElement;
+    this.humidityChart = document.getElementById('humidity-chart') as HTMLCanvasElement;
+    this.humidityTable = document.getElementById('humidity-table') as HTMLElement;
     const id = Number(this.route.snapshot.paramMap.get('id'));
     let startDate, endDate;
     let page = this.route.snapshot.queryParamMap.get('page');
     let pageSize = this.route.snapshot.queryParamMap.get('pageSize');
-
-    // console.log(this.filter);
-    // console.log(page);
-    // console.log(pageSize);
 
     if (this.route.snapshot.queryParamMap.get('startDate') !== null) {
       startDate = new Date(this.route.snapshot.queryParamMap.get('startDate') as string);
@@ -78,58 +90,32 @@ export class NodeComponent implements OnInit {
 
     this.nodeService.getNode(id).subscribe(node => {
       this.node = node;
+      this.timer = this.interval;
+      this.refreshFunction = setInterval(() => {
+        if (this.timer > 0) {
+          this.timer--;
+        } else {
+          this.timer = this.interval;
+
+          let link = '/node/' + this.node.id;
+          if (this.filter.startDate !== '') {
+            link += '?startDate=' + this.filter.startDate;
+
+            if (this.filter.endDate !== '') {
+              link += '&endDate=' + this.filter.endDate;
+            }
+          }
+
+          window.location.href = link;
+        }
+
+      }, 1000);
     });
 
     if (pageSize === null) {
-      if (startDate === undefined) {
-        this.temperatureService.getValuesByNodeId(id).subscribe(temperatureValues => {
-          this.temperatureValues = temperatureValues;
-          // this.createChart(temperatureChart);
-          this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
-        });
-
-        this.humidityService.getValuesByNodeId(id).subscribe(humidityValues => {
-          this.humidityValues = humidityValues;
-          this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
-        })
-      } else {
-        this.temperatureService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(temperatureValues => {
-          this.temperatureValues = temperatureValues;
-
-          // this.createChart(temperatureChart);
-          this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
-        });
-
-        this.humidityService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(humidityValues => {
-          this.humidityValues = humidityValues;
-          this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
-        })
-      }
+      this.fetchData(startDate, endDate, id);
     } else {
-      if (startDate === undefined) {
-        this.temperatureService.getValuesByNodeIdByPageSize(id, page, pageSize).subscribe(temperatureValues => {
-          this.temperatureValues = temperatureValues;
-          // this.createChart(temperatureChart);
-          this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
-        });
-
-        this.humidityService.getValuesByNodeIdByPageSize(id, page, pageSize).subscribe(humidityValues => {
-          this.humidityValues = humidityValues;
-          this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
-        })
-      } else {
-        this.temperatureService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(temperatureValues => {
-          this.temperatureValues = temperatureValues;
-
-          // this.createChart(temperatureChart);
-          this.createChart(temperatureChart, temperatureTable, 'Temperature Values', this.temperatureValues);
-        });
-
-        this.humidityService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(humidityValues => {
-          this.humidityValues = humidityValues;
-          this.createChart(humidityChart, humidityTable, "Humidity Values", this.humidityValues);
-        })
-      }
+      this.fetchDataByPage(startDate, endDate, id, page,pageSize);
     }
   }
 
@@ -141,6 +127,9 @@ export class NodeComponent implements OnInit {
       labels.push(new Date(data.updatedAt).toLocaleString());
       values.push(data.value);
     });
+
+    this.controlTemperatureAlert();
+    this.controlHumidityAlert();
 
     const myChart = new Chart(ctx, {
       type: 'line',
@@ -189,6 +178,62 @@ export class NodeComponent implements OnInit {
     return year + '-' + month + '-' + day + 'T' + hour + ':' + minute;
   };
 
+  fetchData(startDate:any, endDate:any, id:number):void {
+    if (startDate === undefined) {
+      this.temperatureService.getValuesByNodeId(id).subscribe(temperatureValues => {
+        this.temperatureValues = temperatureValues;
+
+        this.createChart(this.temperatureChart, this.temperatureTable, 'Temperature Values', this.temperatureValues);
+      });
+
+      this.humidityService.getValuesByNodeId(id).subscribe(humidityValues => {
+        this.humidityValues = humidityValues;
+
+        this.createChart(this.humidityChart, this.humidityTable, "Humidity Values", this.humidityValues);
+      })
+    } else {
+      this.temperatureService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(temperatureValues => {
+        this.temperatureValues = temperatureValues;
+
+        this.createChart(this.temperatureChart, this.temperatureTable, 'Temperature Values', this.temperatureValues);
+      });
+
+      this.humidityService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(humidityValues => {
+        this.humidityValues = humidityValues;
+
+        this.createChart(this.humidityChart, this.humidityTable, "Humidity Values", this.humidityValues);
+      })
+    }
+  }
+
+  fetchDataByPage(startDate:any, endDate:any, id:number, page:any, pageSize:any):void {
+    if (startDate === undefined) {
+      this.temperatureService.getValuesByNodeIdByPageSize(id, page, pageSize).subscribe(temperatureValues => {
+        this.temperatureValues = temperatureValues;
+        
+        this.createChart(this.temperatureChart, this.temperatureTable, 'Temperature Values', this.temperatureValues);
+      });
+
+      this.humidityService.getValuesByNodeIdByPageSize(id, page, pageSize).subscribe(humidityValues => {
+        this.humidityValues = humidityValues;
+
+        this.createChart(this.humidityChart, this.humidityTable, "Humidity Values", this.humidityValues);
+      })
+    } else {
+      this.temperatureService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(temperatureValues => {
+        this.temperatureValues = temperatureValues;
+
+        this.createChart(this.temperatureChart, this.temperatureTable, 'Temperature Values', this.temperatureValues);
+      });
+
+      this.humidityService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(humidityValues => {
+        this.humidityValues = humidityValues;
+
+        this.createChart(this.humidityChart, this.humidityTable, "Humidity Values", this.humidityValues);
+      })
+    }
+  }
+
   filterData(data: TimeFilter): void {
     // console.log(data);
     if (data.startDate != undefined) {
@@ -206,6 +251,64 @@ export class NodeComponent implements OnInit {
       // window.location.href = '/node/' + this.node.id;
       window.location.href = url;
       // console.log(url);
+    }
+  }
+
+  controlTemperatureAlert():void{
+    const temperatureValue = this.temperatureValues[this.temperatureValues.length - 1];
+
+    this.alertService.getAlert(this.node.id).subscribe((alert) => {
+      if(alert.temperatureAlertId !== 1){
+        this.temperatureAlertService.getTemperatureAlert(alert.temperatureAlertId).subscribe((temperatureAlert) =>{
+          if (temperatureValue.value < temperatureAlert.minValue) {
+            this.temperatureAlertControl = true;
+            this.temperatureAlertMessage = 'The temperature value is too low for ' + this.node.name 
+              + '. The alert type is ' + temperatureAlert.name 
+              + '. The temperature value is ' + temperatureValue.value
+              + '. Date : ' + temperatureValue.updatedAt.toLocaleString();
+          } else if (temperatureValue.value > temperatureAlert.maxValue) {
+            this.temperatureAlertControl = true;
+            this.temperatureAlertMessage = 'The temperature value is too high for ' + this.node.name 
+              + '. The alert type is ' + temperatureAlert.name 
+              + '. The temperature value is ' + temperatureValue.value
+              + '. Date : ' + temperatureValue.updatedAt.toLocaleString();
+            }
+        });  
+      }
+    });
+  }
+
+  controlHumidityAlert():void{
+    const humidityValue = this.temperatureValues[this.temperatureValues.length - 1];
+
+    this.alertService.getAlert(this.node.id).subscribe((alert) => {
+      if(alert.humidityAlertId !== 1){
+        this.humidityAlertService.getHumidityAlert(alert.humidityAlertId).subscribe((humidityAlert) =>{
+          if (humidityValue.value < humidityAlert.minValue) {
+            this.humidityAlertControl = true;
+            this.humidityAlertMessage = 'The humidity value is too low for ' + this.node.name 
+              + '. The alert type is ' + humidityAlert.name 
+              + '. The humidity value is ' + humidityValue.value
+              + '. Date : ' + humidityValue.updatedAt.toLocaleString();
+          } else if (humidityValue.value > humidityAlert.maxValue) {
+            this.humidityAlertControl = true;
+            this.humidityAlertMessage = 'The humidity value is too high for ' + this.node.name 
+              + '. The alert type is ' + humidityAlert.name 
+              + '. The humidity value is ' + humidityValue.value
+              + '. Date : ' + humidityValue.updatedAt.toLocaleString();
+            }
+        });  
+      }
+    });
+  }
+
+  refreshPage(): void{
+    window.location.reload();
+  }
+
+  ngOnDestroy() {
+    if (this.refreshFunction) {
+      clearInterval(this.refreshFunction);
     }
   }
 }

@@ -14,4 +14,8 @@ export class TemperatureAlertService {
   getTemperatureAlerts():Observable<TemperatureAlert[]>{
     return this.http.get<TemperatureAlert[]>(this.url);
   }
+
+  getTemperatureAlert(alertId: number):Observable<TemperatureAlert>{
+    return this.http.get<TemperatureAlert>(this.url + '/' + alertId);
+  }
 }

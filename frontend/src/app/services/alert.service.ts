@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
-import { Node } from '../models/node';
+
+import { Alert } from '../models/alert';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -10,23 +11,21 @@ const httpOptions = {
 @Injectable({
   providedIn: 'root'
 })
-export class NodeService {
-  private url = 'http://localhost:8080/node';
+export class AlertService {
+  private url = 'http://localhost:8080/alert';
 
   constructor(private http: HttpClient) { }
 
-  getNodes(): Observable<Node[]> {
-    return this.http.get<Node[]>(this.url);
+  getAlert(nodeId:number): Observable<Alert> {
+    return this.http.get<Alert>(this.url + '/' + nodeId);
   }
 
-  getNode(id: number): Observable<Node> {
-    // console.log(this.url + '/' + id);
-    return this.http.get<Node>(this.url + '/' + id);
-    // return null;
+  getAlerts(): Observable<Alert> {
+    return this.http.get<Alert>(this.url);
   }
 
-  updateNode(node: Node): Observable<Node> {
-    return this.http.put<Node>(this.url + '/update/' + node.id, node, httpOptions)
+  updateAlert(alert:Alert): Observable<Alert> {
+    return this.http.put<Alert>(this.url + '/update/' + alert.id, alert, httpOptions)
       .pipe(
         catchError(this.handleError)
       );

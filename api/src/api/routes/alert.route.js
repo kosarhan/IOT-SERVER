@@ -4,8 +4,8 @@ module.exports = function (app) {
   // Create a new alert
   app.post('/alert', alert.create);
 
-  // Retrieve an alert by id
-  // app.get('/alert/:id', temperatureAlert.getById);
+  // Retrieve an alert by node id
+  app.get('/alert/:nodeId', alert.getByNodeId);
 
   // Retrieve all alerts
   app.get('/alert', alert.getAll);

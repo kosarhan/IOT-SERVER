@@ -2,11 +2,56 @@ const { Op } = require('sequelize');
 const db = require('../configs/db.config');
 
 const Temperature = db.temperature;
+const Node = db.node;
+const AlertLog = db.alertLog;
+const Alert = db.alert;
+const TemperatureAlert = db.temperatureAlert;
 
 // Post a Temperature Value
 exports.create = (req, res) => {
   // Save to PostgreSQL database
   Temperature.create(req.body).then((temperature) => {
+    Alert.findOne({ where: { nodeId: temperature.nodeId } }).then((alert) => {
+      if (alert.temperatureAlertId !== 1) {
+        Node.findByPk(temperature.nodeId).then((node) => {
+          TemperatureAlert.findByPk(alert.temperatureAlertId).then((temperatureAlert) => {
+            let logMessage;
+            if (temperature.value > temperatureAlert.maxValue) {
+              logMessage = 'The temperature value is too high for ';
+              logMessage = logMessage.concat(node.name,
+                '. The alert type is ', temperatureAlert.name,
+                '. The temperature value is ', temperature.value, '.');
+              const alertLog = {
+                nodeId: temperature.nodeId,
+                message: logMessage
+              };
+
+              AlertLog.create(alertLog).then()
+                .catch((err) => {
+                  console.log(err);
+                  res.status(500).json({ msg: 'error', details: err });
+                });
+            } else if (temperature.value < temperatureAlert.minValue) {
+              logMessage = 'The temperature value is too low for ';
+              logMessage = logMessage.concat(node.name,
+                '. The alert type is ', temperatureAlert.name,
+                '. The temperature value is ', temperature.value, '.');
+
+              const alertLog = {
+                nodeId: temperature.nodeId,
+                message: logMessage
+              };
+
+              AlertLog.create(alertLog).then()
+                .catch((err) => {
+                  console.log(err);
+                  res.status(500).json({ msg: 'error', details: err });
+                });
+            }
+          });
+        });
+      }
+    });
     // Send created temperature value to client
     res.json(temperature);
   }).catch((err) => {

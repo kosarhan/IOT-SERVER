@@ -14,4 +14,8 @@ export class HumidityAlertService {
   getHumidityAlerts():Observable<HumidityAlert[]> {
     return this.http.get<HumidityAlert[]>(this.url);
   }
+
+  getHumidityAlert(alertId: number):Observable<HumidityAlert>{
+    return this.http.get<HumidityAlert>(this.url + '/' + alertId);
+  }
 }

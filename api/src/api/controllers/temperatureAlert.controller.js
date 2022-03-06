@@ -14,6 +14,17 @@ exports.create = (req, res) => {
   });
 };
 
+// Fetch A Temperature Alert
+exports.getById = (req, res) => {
+  const { id } = req.params;
+  TemperatureAlert.findByPk(id).then((temperatureAlert) => {
+    res.json(temperatureAlert);
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).json({ msg: 'error', details: err });
+  });
+};
+
 // FETCH All Temperature Alerts
 exports.getAll = (req, res) => {
   TemperatureAlert.findAll().then((temperatureAlert) => {

@@ -1,1 +1,35 @@
-<p>node-alert works!</p>
+<div class="container alert-form">
+    <div class="col-6 border border-3 rounded">
+        <div style="margin: 1em;">
+            <div class="row">
+                <h2>{{ node.name }}</h2>
+            </div>
+
+            <form (ngSubmit)="onSubmit()" #alertForm="ngForm">
+                <div class="mb-3">
+                    <label for="temperatureAlert"> Temperature Alert</label>
+                    <select name="temperatureAlert" [(ngModel)]="nodeAlert.temperatureAlertId" class="form-select">
+                        <option *ngFor="let alert of temperatureAlerts" [ngValue]="alert.id" [selected]="alert.id == nodeAlert.temperatureAlertId">{{ alert.name }}</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="humidityAlert"> Humidity Alert</label>
+                    <select name="humidityAlert" [(ngModel)]="nodeAlert.humidityAlertId" class="form-select">
+                        <option *ngFor="let alert of humidityAlerts" [ngValue]="alert.id" [selected]="alert.id == nodeAlert.humidityAlertId">{{ alert.name }}</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex">
+                        <div class="float-end" style="margin-left: 1em;">
+                            <button type="button" (click)="resetForm()" class="btn btn-danger"> Cancel</button>
+                        </div>
+                        <div class="float-end" style="margin-left: 1em;">
+                            <button type="submit" class="btn btn-success"> Add Alert</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

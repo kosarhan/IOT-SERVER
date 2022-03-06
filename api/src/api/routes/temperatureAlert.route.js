@@ -5,7 +5,7 @@ module.exports = function (app) {
   app.post('/temperature_alert', temperatureAlert.create);
 
   // Retrieve temperature by id
-  // app.get('/temperature_alert/:id', temperatureAlert.getById);
+  app.get('/temperature_alert/:id', temperatureAlert.getById);
 
   // Retrieve all temperature
   app.get('/temperature_alert', temperatureAlert.getAll);
