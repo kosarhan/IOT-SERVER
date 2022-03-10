@@ -2,12 +2,56 @@ const { Op } = require('sequelize');
 const db = require('../configs/db.config');
 
 const Humidity = db.humidity;
+const Node = db.node;
+const AlertLog = db.alertLog;
+const Alert = db.alert;
+const HumidityAlert = db.humidityAlert;
 
 // Post a Humidity Value
 exports.create = (req, res) => {
   // Save to PostgreSQL database
   Humidity.create(req.body).then((humidity) => {
-    // Send created humidity value to client
+    Alert.findOne({ where: { nodeId: humidity.nodeId } }).then((alert) => {
+      if (alert.humidityAlertId !== 1) {
+        Node.findByPk(humidity.nodeId).then((node) => {
+          HumidityAlert.findByPk(alert.humidityAlertId).then((humidityAlert) => {
+            let logMessage;
+            if (humidity.value > humidityAlert.maxValue) {
+              logMessage = 'The humidity value is too high for ';
+              logMessage = logMessage.concat(node.name,
+                '. The alert type is ', humidityAlert.name,
+                '. The humidity value is ', humidity.value, '.');
+              const alertLog = {
+                nodeId: humidity.nodeId,
+                message: logMessage
+              };
+
+              AlertLog.create(alertLog).then()
+                .catch((err) => {
+                  console.log(err);
+                  res.status(500).json({ msg: 'error', details: err });
+                });
+            } else if (humidity.value < humidityAlert.minValue) {
+              logMessage = 'The humidity value is too low for ';
+              logMessage = logMessage.concat(node.name,
+                '. The alert type is ', humidityAlert.name,
+                '. The humidity value is ', humidity.value, '.');
+
+              const alertLog = {
+                nodeId: humidity.nodeId,
+                message: logMessage
+              };
+
+              AlertLog.create(alertLog).then()
+                .catch((err) => {
+                  console.log(err);
+                  res.status(500).json({ msg: 'error', details: err });
+                });
+            }
+          });
+        });
+      }
+    });
     res.json(humidity);
   }).catch((err) => {
     console.log(err);

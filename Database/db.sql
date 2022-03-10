@@ -136,7 +136,3 @@ INSERT INTO "HumidityAlert" ("name", "minValue", "maxValue", "createdAt", "updat
     ('None', 0, 0, NOW(), NOW()),
     ('Stable', 50.0, 75.0, NOW(), NOW())
 ;
-
-INSERT INTO "Alert" ("nodeId", "temperatureAlertId", "humidityAlertId", "createdAt", "updatedAt") VALUES 
-	(8, 2, 2, NOW(), NOW())
-;

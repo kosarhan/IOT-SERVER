@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgChartsModule } from 'ng2-charts';
 import { MatTable, MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -15,6 +16,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { NodeEditComponent } from './node-edit/node-edit.component';
 import { NodeAlertComponent } from './node-alert/node-alert.component';
+import { AlertComponent } from './alert/alert.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,8 @@ import { NodeAlertComponent } from './node-alert/node-alert.component';
     NodeComponent,
     IndexComponent,
     NodeEditComponent,
-    NodeAlertComponent
+    NodeAlertComponent,
+    AlertComponent
   ],
   imports: [
     HttpClientModule,
@@ -34,7 +37,8 @@ import { NodeAlertComponent } from './node-alert/node-alert.component';
     BrowserAnimationsModule,
     MatTableModule,
     MatPaginatorModule,
-    MatSortModule
+    MatSortModule,
+    MatTabsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

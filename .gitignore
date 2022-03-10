@@ -74,7 +74,4 @@ typings/
 
 # Testing
 test.py
-temperature.txt
-humidity.txt
-cloud_server.py
-clouds.json
+*.csv

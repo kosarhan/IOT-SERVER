@@ -1,0 +1,172 @@
+<div class="container alert-table">
+    <div>
+        <div class="border border-3 rounded m-1">
+            <div style="margin: 1em;">
+                <mat-tab-group>
+                    <mat-tab label="Add Temperature Alert">
+                        <form #temperatureAlertForm="ngForm" (ngSubmit)="addTemperatureAlert(temperatureAlertForm.value)">
+                            <div class="row m-3">
+                                <div class="col">
+                                    <label for="name">Alert Name</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="name" id="name" #name="ngModel" ngModel>
+                                </div>
+                                <div class="col">
+                                    <label for="minValue">Alert Minimum Value</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="minValue" id="minValue" #minValue="ngModel" ngModel>
+                                </div>
+                                <div class="col">
+                                    <label for="maxValue">Alert Maximum Value</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="maxValue" id="maxValue" #maxValue="ngModel" ngModel>
+                                </div>
+                            </div>
+                            <div class="row m-3">
+                                <div class="col-4 d-flex">
+                                    <div class="col">
+                                        <button type="reset" class="btn btn-danger">Cancel</button>
+                                    </div>
+                                    <div class="col">
+                                        <button type="submit" class="btn btn-success">Add Alert</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </mat-tab>
+                    <mat-tab label="Add Humidity Alert">
+                        <form #humidityAlertForm="ngForm" (ngSubmit)="addHumidityAlert(humidityAlertForm.value)">
+                            <div class="row m-3">
+                                <div class="col">
+                                    <label for="name">Alert Name</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="name" id="name" #name="ngModel" ngModel>
+                                </div>
+                                <div class="col">
+                                    <label for="minValue">Alert Minimum Value</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="minValue" id="minValue" #minValue="ngModel" ngModel>
+                                </div>
+                                <div class="col">
+                                    <label for="maxValue">Alert Maximum Value</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="maxValue" id="maxValue" #maxValue="ngModel" ngModel>
+                                </div>
+                            </div>
+                            <div class="row m-3">
+                                <div class="col-4 d-flex">
+                                    <div class="col">
+                                        <button type="reset" class="btn btn-danger">Cancel</button>
+                                    </div>
+                                    <div class="col">
+                                        <button type="submit" class="btn btn-success">Add Alert</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </mat-tab>
+                    <mat-tab label="Update Alert">
+                        <form #nodeForm="ngForm" (ngSubmit)="updateAlert()">
+                            <div class="row m-3">
+                                <div class="col">
+                                    <label for="name">Alert Name</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="name" id="name" #id="ngModel" [(ngModel)]="data.name">
+                                </div>
+                                <div class="col">
+                                    <label for="minValue">Alert Minimum Value</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="minValue" id="minValue" #id="ngModel" [(ngModel)]="data.minValue">
+                                </div>
+                                <div class="col">
+                                    <label for="maxValue">Alert Maximum Value</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="maxValue" id="maxValue" #id="ngModel" [(ngModel)]="data.maxValue">
+                                </div>
+                            </div>
+                            <div class="row m-3">
+                                <div class="col-4 d-flex">
+                                    <div class="col">
+                                        <button type="submit" class="btn btn-danger">Cancel</button>
+                                    </div>
+                                    <div class="col">
+                                        <button type="submit" class="btn btn-success">Update Alert</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex">
+        <div class="col-6 border border-3 rounded m-1">
+            <div style="margin: 1em;">
+                <table class="table">
+                    <thead>
+                        <th scope="col">Alert Id</th>
+                        <th scope="col">Alert Name</th>
+                        <th scope="col">Alert Minimum Value</th>
+                        <th scope="col">Alert Maximum Value</th>
+                        <th scope="col"></th>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let alert of temperatureAlerts" class="pe-auto"  style="cursor: pointer;" (click)="editAlert(true, alert.id)">
+                            <td scope="row" class="align-middle">{{ alert.id }}</td>
+                            <td class="align-middle">{{ alert.name}}</td>
+                            <td class="align-middle">{{ alert.minValue}}</td>
+                            <td class="align-middle">{{ alert.maxValue}}</td>
+                            <td class="align-middle">
+                                <button (click)="deleteTemperatureAlert(alert.id)" class="btn btn-outline-danger">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                        <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-6 border border-3 rounded m-1">
+            <div style="margin: 1em;">
+                <table class="table">
+                    <thead>
+                        <th scope="col">Alert Id</th>
+                        <th scope="col">Alert Name</th>
+                        <th scope="col">Alert Minimum Value</th>
+                        <th scope="col">Alert Maximum Value</th>
+                        <th scope="col"></th>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let alert of humidityAlerts" class="pe-auto"  style="cursor: pointer;" (click)="editAlert(false, alert.id)">
+                            <td scope="row" class="align-middle">{{ alert.id }}</td>
+                            <td class="align-middle">{{ alert.name}}</td>
+                            <td class="align-middle">{{ alert.minValue}}</td>
+                            <td class="align-middle">{{ alert.maxValue}}</td>
+                            <td class="align-middle">
+                                <button (click)="deleteHumidityAlert(alert.id)" class="btn btn-outline-danger">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                        <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

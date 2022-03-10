@@ -1,41 +1,47 @@
-<div class="container node-table d-flex">
-    <div class="col-6 border border-3 rounded m-1">
-        <div style="margin: 1em;">
-            <table class="table">
-                <thead>
-                    <th scope="col">Node Id</th>
-                    <th scope="col">Node Name</th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let node of nodes" class="pe-auto" style="cursor: pointer;">
-                        <td scope="row" class="align-middle" [routerLink]="['/node/', node.id]">{{ node.id }}</td>
-                        <td class="align-middle" [routerLink]="['/node/', node.id]">{{ node.name}}</td>
-                        <td><a href="/node-alert/{{ node.id }}" class="btn btn-success">Add Alert</a></td>
-                        <td><a href="/node/{{ node.id }}/edit" class="btn btn-warning">Edit</a></td>
-                    </tr>
-                </tbody>
-            </table>    
-        </div>
+<div class="container node-table">
+    <div>
+        <a href="/alert" class="btn btn-primary">Edit Alerts</a>
     </div>
 
-    <div class="col-6 border border-3 rounded m-1">
-        <div style="margin: 1em;">
-            <table class="table">
-                <thead>
-                    <th scope="col">Id</th>
-                    <th scope="col">Node Id</th>
-                    <th scope="col">Message</th>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let log of alertLogs" class="pe-auto" style="cursor: pointer;">
-                        <td scope="row" class="align-middle">{{ log.id }}</td>
-                        <td class="align-middle">{{ log.nodeId}}</td>
-                        <td class="align-middle">{{ log.message}}</td>
-                    </tr>
-                </tbody>
-            </table>    
+    <div class="d-flex">
+        <div class="col-6 border border-3 rounded m-1">
+            <div style="margin: 1em;">
+                <table class="table">
+                    <thead>
+                        <th scope="col">Node Id</th>
+                        <th scope="col">Node Name</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let node of nodes" class="pe-auto" style="cursor: pointer;">
+                            <td scope="row" class="align-middle" [routerLink]="['/node/', node.id]">{{ node.id }}</td>
+                            <td class="align-middle" [routerLink]="['/node/', node.id]">{{ node.name}}</td>
+                            <td><a href="/node-alert/{{ node.id }}" class="btn btn-success">Add Alert</a></td>
+                            <td><a href="/node/{{ node.id }}/edit" class="btn btn-warning">Edit</a></td>
+                        </tr>
+                    </tbody>
+                </table>    
+            </div>
+        </div>
+    
+        <div class="col-6 border border-3 rounded m-1">
+            <div style="margin: 1em;">
+                <table class="table">
+                    <thead>
+                        <th scope="col">Id</th>
+                        <th scope="col">Node Id</th>
+                        <th scope="col">Message</th>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let log of alertLogs" class="pe-auto">
+                            <td scope="row" class="align-middle">{{ log.id }}</td>
+                            <td class="align-middle">{{ log.nodeId}}</td>
+                            <td class="align-middle">{{ log.message}}</td>
+                        </tr>
+                    </tbody>
+                </table>    
+            </div>
         </div>
     </div>
 </div>

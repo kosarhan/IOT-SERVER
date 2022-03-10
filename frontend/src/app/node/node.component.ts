@@ -260,7 +260,7 @@ export class NodeComponent implements OnInit {
     this.alertService.getAlert(this.node.id).subscribe((alert) => {
       if(alert.temperatureAlertId !== 1){
         this.temperatureAlertService.getTemperatureAlert(alert.temperatureAlertId).subscribe((temperatureAlert) =>{
-          if (temperatureValue.value < temperatureAlert.minValue) {
+          if (temperatureValue.value < temperatureAlert.minValue && temperatureValue.updatedAt > alert.updatedAt) {
             this.temperatureAlertControl = true;
             this.temperatureAlertMessage = 'The temperature value is too low for ' + this.node.name 
               + '. The alert type is ' + temperatureAlert.name 
@@ -284,7 +284,7 @@ export class NodeComponent implements OnInit {
     this.alertService.getAlert(this.node.id).subscribe((alert) => {
       if(alert.humidityAlertId !== 1){
         this.humidityAlertService.getHumidityAlert(alert.humidityAlertId).subscribe((humidityAlert) =>{
-          if (humidityValue.value < humidityAlert.minValue) {
+          if (humidityValue.value < humidityAlert.minValue && humidityValue.updatedAt > alert.updatedAt) {
             this.humidityAlertControl = true;
             this.humidityAlertMessage = 'The humidity value is too low for ' + this.node.name 
               + '. The alert type is ' + humidityAlert.name 
