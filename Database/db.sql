@@ -3,12 +3,10 @@ CREATE TABLE "Node"
 (
     id integer NOT NULL,
     name text NOT NULL,
-    "temperatureAlertId" integer,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone,
     "deletedAt" timestamp with time zone,
-    PRIMARY KEY (id),
-    FOREIGN KEY ("temperatureAlertId") REFERENCES "TemperatureAlert"(id);
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE "Temperature"
