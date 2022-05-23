@@ -1,16 +1,13 @@
 -- Creating Tables
-CREATE TABLE "Node"
-(
+CREATE TABLE "Node" (
     id integer NOT NULL,
     name text NOT NULL,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone,
     "deletedAt" timestamp with time zone,
-    PRIMARY KEY (id)
-);
+    PRIMARY KEY (id));
 
-CREATE TABLE "Temperature"
-(
+CREATE TABLE "Temperature" (
     id SERIAL NOT NULL,
     value float NOT NULL,
     "nodeId" integer NOT NULL,
@@ -18,11 +15,9 @@ CREATE TABLE "Temperature"
     "updatedAt" timestamp with time zone,
     "deletedAt" timestamp with time zone,
     PRIMARY KEY (id),
-	FOREIGN KEY ("nodeId") REFERENCES "Node"(id)
-);
+	FOREIGN KEY ("nodeId") REFERENCES "Node"(id));
 
-CREATE TABLE "Humidity"
-(
+CREATE TABLE "Humidity" (
     id SERIAL NOT NULL,
     value float NOT NULL,
     "nodeId" integer NOT NULL,
@@ -30,11 +25,20 @@ CREATE TABLE "Humidity"
     "updatedAt" timestamp with time zone,
     "deletedAt" timestamp with time zone,
     PRIMARY KEY (id),
-	FOREIGN KEY ("nodeId") REFERENCES "Node"(id)
-);
+	FOREIGN KEY ("nodeId") REFERENCES "Node"(id));
 
-CREATE TABLE "TemperatureAlert"
-(
+CREATE TABLE "GPS" (
+    id SERIAL NOT NULL,
+    "latitude" text NOT NULL,
+    "longitude" text NOT NULL,
+    "nodeId" integer NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone,
+    "deletedAt" timestamp with time zone,
+    PRIMARY KEY (id),
+	FOREIGN KEY ("nodeId") REFERENCES "Node"(id));
+
+CREATE TABLE "TemperatureAlert" (
     id SERIAL NOT NULL,
     name text NOT NULL,
     "minValue" float NOT NULL,
@@ -42,8 +46,7 @@ CREATE TABLE "TemperatureAlert"
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone,
     "deletedAt" timestamp with time zone,
-    PRIMARY KEY (id)
-);
+    PRIMARY KEY (id));
 
 CREATE TABLE "HumidityAlert" (
     id SERIAL NOT NULL,
@@ -53,8 +56,7 @@ CREATE TABLE "HumidityAlert" (
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone,
     "deletedAt" timestamp with time zone,
-    PRIMARY KEY (id)
-);
+    PRIMARY KEY (id));
 
 CREATE TABLE "Alert" (
     id SERIAL NOT NULL,
@@ -67,8 +69,7 @@ CREATE TABLE "Alert" (
     PRIMARY KEY (id),
 	FOREIGN KEY ("nodeId") REFERENCES "Node"(id),
 	FOREIGN KEY ("temperatureAlertId") REFERENCES "TemperatureAlert"(id),
-	FOREIGN KEY ("humidityAlertId") REFERENCES "HumidityAlert"(id)
-);
+	FOREIGN KEY ("humidityAlertId") REFERENCES "HumidityAlert"(id));
 
 CREATE TABLE "AlertLog" (
     id SERIAL NOT NULL,
@@ -78,8 +79,7 @@ CREATE TABLE "AlertLog" (
     "updatedAt" timestamp with time zone,
     "deletedAt" timestamp with time zone,
     PRIMARY KEY (id),
-	FOREIGN KEY ("nodeId") REFERENCES "Node"(id)
-);
+	FOREIGN KEY ("nodeId") REFERENCES "Node"(id));
 
 -- Creating Trigger Functions
 
@@ -113,6 +113,7 @@ $insert_value$ LANGUAGE plpgsql;
 
 CREATE TRIGGER insert_temperature_value BEFORE INSERT OR UPDATE ON "Temperature" FOR EACH ROW EXECUTE FUNCTION process_insert_value();
 CREATE TRIGGER insert_humidity_value BEFORE INSERT OR UPDATE ON "Humidity" FOR EACH ROW EXECUTE FUNCTION process_insert_value();
+CREATE TRIGGER insert_gps_value BEFORE INSERT OR UPDATE ON "GPS" FOR EACH ROW EXECUTE FUNCTION process_insert_value();
 
 -- Creating Example Data
 
