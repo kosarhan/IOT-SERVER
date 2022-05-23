@@ -17,16 +17,22 @@ def check_server():
 def send_data(msg, node_id):
     data = msg.split('/')
 
-    for i in range(0, len(data), 2):
-        if data[i] == 'TC':
-            sended_data = {'value': data[i+1], 'nodeId': node_id}
-            response = requests.post(URL + '/temperature', sended_data)
-            print(response.status_code)
-        elif data[i] == 'HU':
-            sended_data = {'value': data[i+1], 'nodeId': node_id}
-            response = requests.post(URL + '/humidity', sended_data)
-            print(response.status_code)
+    if data[0] == 'BC':
+        sended_data = {'latitude': data[3], 'longitude': data[5], 'nodeId': node_id}
+        response = requests.post(URL + '/gps', sended_data)
+        print(response.status_code)
         pass
+    else:
+        for i in range(0, len(data), 2):
+            if data[i] == 'TC':
+                sended_data = {'value': data[i+1], 'nodeId': node_id}
+                response = requests.post(URL + '/temperature', sended_data)
+                print(response.status_code)
+            elif data[i] == 'HU':
+                sended_data = {'value': data[i+1], 'nodeId': node_id}
+                response = requests.post(URL + '/humidity', sended_data)
+                print(response.status_code)
+            pass
 
 
 def main(ldata, pdata, rdata, tdata, gwid):

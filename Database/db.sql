@@ -29,8 +29,8 @@ CREATE TABLE "Humidity" (
 
 CREATE TABLE "GPS" (
     id SERIAL NOT NULL,
-    "latitude" text NOT NULL,
-    "longitude" text NOT NULL,
+    "latitude" float NOT NULL,
+    "longitude" float NOT NULL,
     "nodeId" integer NOT NULL,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone,

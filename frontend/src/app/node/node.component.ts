@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Chart } from 'chart.js';
+import * as L from 'leaflet';
 
 import { Node } from '../models/node';
 import { Temperature } from '../models/temperature';
@@ -11,6 +12,8 @@ import { HumidityService } from '../services/humidity.service';
 import { AlertService } from '../services/alert.service';
 import { TemperatureAlertService } from '../services/temperature-alert.service';
 import { HumidityAlertService } from '../services/humidity-alert.service';
+import { GPSService } from '../services/gps.service';
+import { GPS } from '../models/gps';
 
 export interface TimeFilter {
   startDate: string;
@@ -22,7 +25,7 @@ export interface TimeFilter {
   templateUrl: './node.component.html',
   styleUrls: ['./node.component.css']
 })
-export class NodeComponent implements OnInit {
+export class NodeComponent implements AfterViewInit {
   node: Node = {
     id: -1,
     name: '',
@@ -36,10 +39,12 @@ export class NodeComponent implements OnInit {
   };
   temperatureValues: Temperature[] = [];
   humidityValues: Humidity[] = [];
+  gpsValues: GPS[] = [];
   refreshFunction: any;
   height = 400;
   interval = 30;
   timer!: number;
+  markers: L.Marker[] = [];
 
   alertControl: boolean = false;
   temperatureAlertControl: boolean = false;
@@ -60,13 +65,15 @@ export class NodeComponent implements OnInit {
     private alertService: AlertService,
     private temperatureAlertService: TemperatureAlertService,
     private humidityAlertService: HumidityAlertService,
+    private gpsService: GPSService,
     private route: ActivatedRoute) { }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     this.temperatureChart = document.getElementById('temperature-chart') as HTMLCanvasElement;
     this.temperatureTable = document.getElementById('temperature-table') as HTMLElement;
     this.humidityChart = document.getElementById('humidity-chart') as HTMLCanvasElement;
     this.humidityTable = document.getElementById('humidity-table') as HTMLElement;
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
     let startDate, endDate;
     let page = this.route.snapshot.queryParamMap.get('page');
@@ -91,7 +98,7 @@ export class NodeComponent implements OnInit {
     this.nodeService.getNode(id).subscribe(node => {
       this.node = node;
       this.timer = this.interval;
-      this.refreshFunction = setInterval(() => {
+      /*this.refreshFunction = setInterval(() => {
         if (this.timer > 0) {
           this.timer--;
         } else {
@@ -109,13 +116,13 @@ export class NodeComponent implements OnInit {
           window.location.href = link;
         }
 
-      }, 1000);
+      }, 1000);*/
     });
 
     if (pageSize === null) {
       this.fetchData(startDate, endDate, id);
     } else {
-      this.fetchDataByPage(startDate, endDate, id, page,pageSize);
+      this.fetchDataByPage(startDate, endDate, id, page, pageSize);
     }
   }
 
@@ -178,7 +185,7 @@ export class NodeComponent implements OnInit {
     return year + '-' + month + '-' + day + 'T' + hour + ':' + minute;
   };
 
-  fetchData(startDate:any, endDate:any, id:number):void {
+  fetchData(startDate: any, endDate: any, id: number): void {
     if (startDate === undefined) {
       this.temperatureService.getValuesByNodeId(id).subscribe(temperatureValues => {
         this.temperatureValues = temperatureValues;
@@ -190,7 +197,13 @@ export class NodeComponent implements OnInit {
         this.humidityValues = humidityValues;
 
         this.createChart(this.humidityChart, this.humidityTable, "Humidity Values", this.humidityValues);
-      })
+      });
+
+      this.gpsService.getValuesByNodeId(id).subscribe(gpsValues => {
+        this.gpsValues = gpsValues;
+
+        this.initMap(gpsValues);
+      });
     } else {
       this.temperatureService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(temperatureValues => {
         this.temperatureValues = temperatureValues;
@@ -202,15 +215,21 @@ export class NodeComponent implements OnInit {
         this.humidityValues = humidityValues;
 
         this.createChart(this.humidityChart, this.humidityTable, "Humidity Values", this.humidityValues);
-      })
+      });
+
+      this.gpsService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(gpsValues => {
+        this.gpsValues = gpsValues;
+
+        this.initMap(gpsValues);
+      });
     }
   }
 
-  fetchDataByPage(startDate:any, endDate:any, id:number, page:any, pageSize:any):void {
+  fetchDataByPage(startDate: any, endDate: any, id: number, page: any, pageSize: any): void {
     if (startDate === undefined) {
       this.temperatureService.getValuesByNodeIdByPageSize(id, page, pageSize).subscribe(temperatureValues => {
         this.temperatureValues = temperatureValues;
-        
+
         this.createChart(this.temperatureChart, this.temperatureTable, 'Temperature Values', this.temperatureValues);
       });
 
@@ -218,7 +237,13 @@ export class NodeComponent implements OnInit {
         this.humidityValues = humidityValues;
 
         this.createChart(this.humidityChart, this.humidityTable, "Humidity Values", this.humidityValues);
-      })
+      });
+
+      this.gpsService.getValuesByNodeIdByPageSize(id, page, pageSize).subscribe(gpsValues => {
+        this.gpsValues = gpsValues;
+
+        this.initMap(gpsValues);
+      });
     } else {
       this.temperatureService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(temperatureValues => {
         this.temperatureValues = temperatureValues;
@@ -230,7 +255,13 @@ export class NodeComponent implements OnInit {
         this.humidityValues = humidityValues;
 
         this.createChart(this.humidityChart, this.humidityTable, "Humidity Values", this.humidityValues);
-      })
+      });
+
+      this.gpsService.getValuesByNodeIdWithTimeFilters(id, startDate, endDate).subscribe(gpsValues => {
+        this.gpsValues = gpsValues;
+
+        this.initMap(gpsValues);
+      });
     }
   }
 
@@ -254,56 +285,97 @@ export class NodeComponent implements OnInit {
     }
   }
 
-  controlTemperatureAlert():void{
+  controlTemperatureAlert(): void {
     const temperatureValue = this.temperatureValues[this.temperatureValues.length - 1];
 
     this.alertService.getAlert(this.node.id).subscribe((alert) => {
-      if(alert.temperatureAlertId !== 1){
-        this.temperatureAlertService.getTemperatureAlert(alert.temperatureAlertId).subscribe((temperatureAlert) =>{
+      if (alert.temperatureAlertId !== 1) {
+        this.temperatureAlertService.getTemperatureAlert(alert.temperatureAlertId).subscribe((temperatureAlert) => {
           if (temperatureValue.value < temperatureAlert.minValue && temperatureValue.updatedAt > alert.updatedAt) {
             this.temperatureAlertControl = true;
-            this.temperatureAlertMessage = 'The temperature value is too low for ' + this.node.name 
-              + '. The alert type is ' + temperatureAlert.name 
+            this.temperatureAlertMessage = 'The temperature value is too low for ' + this.node.name
+              + '. The alert type is ' + temperatureAlert.name
               + '. The temperature value is ' + temperatureValue.value
               + '. Date : ' + temperatureValue.updatedAt.toLocaleString();
           } else if (temperatureValue.value > temperatureAlert.maxValue) {
             this.temperatureAlertControl = true;
-            this.temperatureAlertMessage = 'The temperature value is too high for ' + this.node.name 
-              + '. The alert type is ' + temperatureAlert.name 
+            this.temperatureAlertMessage = 'The temperature value is too high for ' + this.node.name
+              + '. The alert type is ' + temperatureAlert.name
               + '. The temperature value is ' + temperatureValue.value
               + '. Date : ' + temperatureValue.updatedAt.toLocaleString();
-            }
-        });  
+          }
+        });
       }
     });
   }
 
-  controlHumidityAlert():void{
+  controlHumidityAlert(): void {
     const humidityValue = this.temperatureValues[this.temperatureValues.length - 1];
 
     this.alertService.getAlert(this.node.id).subscribe((alert) => {
-      if(alert.humidityAlertId !== 1){
-        this.humidityAlertService.getHumidityAlert(alert.humidityAlertId).subscribe((humidityAlert) =>{
+      if (alert.humidityAlertId !== 1) {
+        this.humidityAlertService.getHumidityAlert(alert.humidityAlertId).subscribe((humidityAlert) => {
           if (humidityValue.value < humidityAlert.minValue && humidityValue.updatedAt > alert.updatedAt) {
             this.humidityAlertControl = true;
-            this.humidityAlertMessage = 'The humidity value is too low for ' + this.node.name 
-              + '. The alert type is ' + humidityAlert.name 
+            this.humidityAlertMessage = 'The humidity value is too low for ' + this.node.name
+              + '. The alert type is ' + humidityAlert.name
               + '. The humidity value is ' + humidityValue.value
               + '. Date : ' + humidityValue.updatedAt.toLocaleString();
           } else if (humidityValue.value > humidityAlert.maxValue) {
             this.humidityAlertControl = true;
-            this.humidityAlertMessage = 'The humidity value is too high for ' + this.node.name 
-              + '. The alert type is ' + humidityAlert.name 
+            this.humidityAlertMessage = 'The humidity value is too high for ' + this.node.name
+              + '. The alert type is ' + humidityAlert.name
               + '. The humidity value is ' + humidityValue.value
               + '. Date : ' + humidityValue.updatedAt.toLocaleString();
-            }
-        });  
+          }
+        });
       }
     });
   }
 
-  refreshPage(): void{
+  refreshPage(): void {
     window.location.reload();
+  }
+
+  private initMap(gpsList: GPS[]): void {
+    let gps = gpsList[0];
+
+    let map = L.map('map').setView([gps.latitude, gps.longitude], 20);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    for (let index = 0; index < gpsList.length; index++) {
+      gps = gpsList[index];
+
+      let marker = L.marker([gps.latitude, gps.longitude]).addTo(map);
+      marker.bindPopup(gps.updatedAt.toString());
+
+      this.markers.push(marker);
+    }
+  }
+
+  openMarkerPopup(index:number):void{
+    this.markers[index].openPopup();
+  }
+
+  specifyMarker(index:number):void{
+    for (let i = 0; i < this.markers.length; i++) {
+      const marker = this.markers[i];
+
+      if(i != index){
+        marker.setOpacity(0);
+      }
+    }
+  }
+
+  unspecifyMarker(index:number):void{
+    for (let i = 0; i < this.markers.length; i++) {
+      const marker = this.markers[i];
+
+      marker.setOpacity(1);
+    }
   }
 
   ngOnDestroy() {

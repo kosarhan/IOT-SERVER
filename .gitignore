@@ -75,3 +75,4 @@ typings/
 # Testing
 test.py
 *.csv
+api/.vscode/settings.json

@@ -1,112 +1,145 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+  integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+  crossorigin="" />
+<!-- Make sure you put this AFTER Leaflet's CSS -->
+<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+  integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+  crossorigin=""></script>
+
 <div class="container-fluid">
-    <div class="row bottom-line">
-        <div class="row mt-3 mb-3">
-            <div class="col-11">
-                <h1>{{ node.name }}</h1>
-            </div>
-            <div class="col-1 float-end">
-                <button class="btn btn-primary" (click)="refreshPage()">Refresh In {{ timer }}</button>
-            </div>
+  <div class="row bottom-line">
+    <div class="row mt-3 mb-3">
+      <div class="col-11">
+        <h1>{{ node.name }}</h1>
+      </div>
+      <div class="col-1 float-end">
+        <button class="btn btn-primary" (click)="refreshPage()">Refresh In {{ timer }}</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <form class="row" #filterForm="ngForm" (ngSubmit)="filterData(filterForm.value)">
+        <div class="col-4">
+          <label for="startDate">Start Time:</label>
+          <input type="datetime-local" id="startDate" name="startDate" value="{{ filter.startDate }}"
+            [(ngModel)]="filter.startDate">
         </div>
+        <div class="col-4">
+          <label for="endDate">End Time:</label>
+          <input type="datetime-local" id="endDate" name="endDate" value="{{ filter.endDate }}"
+            [(ngModel)]="filter.endDate">
+        </div>
+        <div class="col-4">
+          <button type="submit">Filter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="row" style="margin-bottom: 100px;">
+    <div class="bottom-line">
+      <h2>Temperature</h2>
+    </div>
+
+    <div class="pr-3 pl-3" *ngIf="temperatureAlertControl">
+      <div class="alert alert-danger" role="alert">
+        {{ temperatureAlertMessage }}
+      </div>
     </div>
 
     <div class="row">
-        <div class="col-6">
-            <form class="row" #filterForm="ngForm" (ngSubmit)="filterData(filterForm.value)">
-                <div class="col-4">
-                    <label for="startDate">Start Time:</label>
-                    <input type="datetime-local" id="startDate" name="startDate" value="{{ filter.startDate }}"
-                        [(ngModel)]="filter.startDate">
-                </div>
-                <div class="col-4">
-                    <label for="endDate">End Time:</label>
-                    <input type="datetime-local" id="endDate" name="endDate" value="{{ filter.endDate }}"
-                        [(ngModel)]="filter.endDate">
-                </div>
-                <div class="col-4">
-                    <button type="submit">Filter</button>
-                </div>
-            </form>
+      <div class="col-md-9">
+        <div class="chart-container" style="position: relative"><canvas id="temperature-chart" width="400"
+            height="{{ height}}"></canvas></div>
+      </div>
+      <div class="col-md-3">
+        <div style="overflow-y: scroll;" id="temperature-table">
+          <table class="table table-hover">
+            <thead>
+              <th scope="col">#</th>
+              <th scope="col">Value</th>
+              <th scope="col">Date</th>
+            </thead>
+            <tbody>
+              <tr *ngFor="let temperature of temperatureValues; let i = index" [attr.data-index]="i">
+                <td>{{ i + 1 }}</td>
+                <td>{{ temperature.value }}</td>
+                <td>{{ temperature.updatedAt }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
     </div>
 
-    <br>
+  </div>
 
-    <div class="row" style="margin-bottom: 100px;">
-        <div class="bottom-line">
-            <h2>Temperature</h2>
-        </div>
 
-        <div class="pr-3 pl-3" *ngIf="temperatureAlertControl">
-            <div class="alert alert-danger" role="alert">
-                {{ temperatureAlertMessage }}
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-9">
-                <div class="chart-container" style="position: relative"><canvas id="temperature-chart" width="400"
-                        height="{{ height}}"></canvas></div>
-            </div>
-            <div class="col-md-3">
-                <div style="overflow-y: scroll;" id="temperature-table">
-                    <table class="table table-hover">
-                        <thead>
-                            <th scope="col">#</th>
-                            <th scope="col">Value</th>
-                            <th scope="col">Date</th>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let temperature of temperatureValues; let i = index" [attr.data-index]="i">
-                                <td>{{ i + 1 }}</td>
-                                <td>{{ temperature.value }}</td>
-                                <td>{{ temperature.updatedAt }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
+  <div class="row" style="margin-bottom: 150px;">
+    <div class="bottom-line">
+      <h2>Humidity</h2>
     </div>
 
-
-    <div class="row" style="margin-bottom: 150px;">
-        <div class="bottom-line">
-            <h2>Humidity</h2>
-        </div>
-
-        <div class="pr-3 pl-3" *ngIf="humidityAlertControl">
-            <div class="alert alert-danger" role="alert">
-                {{ humidityAlertMessage }}
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-9">
-                <div class="chart-container" style="position: relative"><canvas id="humidity-chart" width="400"
-                        height="{{ height}}"></canvas></div>
-            </div>
-            <div class="col-md-3">
-                <div style="overflow-y: scroll;" id="humidity-table">
-                    <table class="table table-hover">
-                        <thead>
-                            <th scope="col">#</th>
-                            <th scope="col">Value</th>
-                            <th scope="col">Date</th>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let humidity of humidityValues; let i = index" [attr.data-index]="i">
-                                <td>{{ i + 1 }}</td>
-                                <td>{{ humidity.value }}</td>
-                                <td>{{ humidity.updatedAt }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
+    <div class="pr-3 pl-3" *ngIf="humidityAlertControl">
+      <div class="alert alert-danger" role="alert">
+        {{ humidityAlertMessage }}
+      </div>
     </div>
 
+    <div class="row">
+      <div class="col-md-9">
+        <div class="chart-container" style="position: relative"><canvas id="humidity-chart" width="400"
+            height="{{ height}}"></canvas></div>
+      </div>
+      <div class="col-md-3">
+        <div style="overflow-y: scroll;" id="humidity-table">
+          <table class="table table-hover">
+            <thead>
+              <th scope="col">#</th>
+              <th scope="col">Value</th>
+              <th scope="col">Date</th>
+            </thead>
+            <tbody>
+              <tr *ngFor="let humidity of humidityValues; let i = index" [attr.data-index]="i">
+                <td>{{ i + 1 }}</td>
+                <td>{{ humidity.value }}</td>
+                <td>{{ humidity.updatedAt }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row" style="margin-bottom: 150px;">
+    <div class="col-md-9">
+      <div id="map"></div>
+    </div>
+    <div class="col-md-3">
+      <div style="overflow-y: scroll;" id="humidity-table">
+        <table class="table table-hover">
+          <thead>
+            <th scope="col">#</th>
+            <th scope="col">latitude</th>
+            <th scope="col">longitude</th>
+            <th scope="col">Date</th>
+          </thead>
+          <tbody>
+            <tr *ngFor="let gps of gpsValues; let i = index" [attr.data-index]="i" (click)="openMarkerPopup(i)" (mouseover)="specifyMarker(i)" (mouseout)="unspecifyMarker(i)">
+              <td>{{ i + 1 }}</td>
+              <td>{{ gps.latitude }}</td>
+              <td>{{ gps.longitude }}</td>
+              <td>{{ gps.updatedAt }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>

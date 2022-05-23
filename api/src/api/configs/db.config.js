@@ -28,6 +28,7 @@ db.alert = require('../models/alert.model')(sequelize, Sequelize);
 db.temperatureAlert = require('../models/temperatureAlert.model')(sequelize, Sequelize);
 db.humidityAlert = require('../models/humidityAlert.model')(sequelize, Sequelize);
 db.alertLog = require('../models/alertLog.model')(sequelize, Sequelize);
+db.GPS = require('../models/gps.model')(sequelize, Sequelize);
 
 const Temperature = db.temperature;
 const Node = db.node;
@@ -36,6 +37,7 @@ const Alert = db.alert;
 const TemperatureAlert = db.temperatureAlert;
 const HumidityAlert = db.humidityAlert;
 const AlertLog = db.alertLog;
+const GPS = db.GPS;
 
 // Node.hasMany(Temperature, { foreignKey: 'nodeId' });
 // Node.hasMany(Humidity, { foreignKey: 'nodeId' });
@@ -46,6 +48,9 @@ Node.hasMany(Temperature, { foreignKey: 'nodeId' });
 
 Node.hasMany(Humidity, { foreignKey: 'nodeId' });
 // Humidity.belongsTo(Node);
+
+Node.hasMany(GPS, { foreignKey: 'nodeId' });
+// GPS.belongsTo(Node);
 
 Node.hasOne(Alert, { foreignKey: 'nodeId' });
 // Alert.belongsTo(Node);
